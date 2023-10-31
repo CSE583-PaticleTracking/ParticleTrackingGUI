@@ -7,6 +7,7 @@ Python GUI for tracking particle trajectories from images and calculate statisti
 - Chandler Heintz
 - Mohan Kukreja
 - Terry Yan
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -23,3 +24,5 @@ Testing Julio's branch
  another test
 
 >>>>>>> 81035774774baac84a708dfa29457e8e20f011c6
+=======
+>>>>>>> 1f8da424d2512e5b36f5a48fd5e1e1ac2de4d3fd
