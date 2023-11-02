@@ -6,7 +6,7 @@ Python GUI for tracking particle trajectories from images and calculate statisti
 - Carlos Abarca
 - Chandler Heintz
 - Mohan Kukreja
-- Terry Yan
+- Torry Yan
 <<<<<<< HEAD
 
 <<<<<<< HEAD
