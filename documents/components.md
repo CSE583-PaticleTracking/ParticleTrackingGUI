@@ -1,6 +1,6 @@
 ## Components Specifications
 ## Name : 
-    - GUI
+- GUI
 
 ### Overview
 The GUI Component is responsible for creating the user interface that allows users to interact with the application. It provides a visual representation of the software's features and enables users to input data, analyze data, view results, and control the software's functionality.
@@ -13,6 +13,7 @@ The GUI Component is responsible for creating the user interface that allows use
 - Ensuring accessibility and responsive design for various devices and screen sizes.
 
 ### imputs:
+- User imput
 
 ### output
 

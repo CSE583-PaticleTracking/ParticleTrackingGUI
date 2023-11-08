@@ -7,3 +7,5 @@
 - Tracking (Main use case)
 - Statistic Anaylsis (Use has done his own tracking, he wants to to do some anaysis on that data)
 - Export data to the user
+- Enable users to search and filter data in the software.
+- Display interactive visualizations and reports.
