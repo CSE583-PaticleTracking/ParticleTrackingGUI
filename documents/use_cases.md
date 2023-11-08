@@ -9,3 +9,17 @@
 - Export data to the user
 - Enable users to search and filter data in the software.
 - Display interactive visualizations and reports.
+- Analyze the behavior of nanoparticles in a laboratory experiment.
+- Monitor the movement of cells in a biological study.
+- Track the motion of vehicles or pedestrians in a traffic simulation.
+- Study the flow of fluids in an physical or industrial process.
+- Analyze the behavior of nanoparticles in a laboratory experiment.
+- Monitor the movement of cells in a biological study.
+- Track the motion of vehicles or pedestrians in a traffic simulation.
+- Study the flow of fluids in an industrial process.
+- Analyze wind patterns and turbulence in meteorology.
+- Study fluid flow in engineering and aerodynamics.
+- Evaluate vector field data in scientific simulations.
+- Visualize and exploring complex data distributions in data analysis.
+- Export data to Excel or csv for further analysis.
+- Generating figures for presentations or publishing.

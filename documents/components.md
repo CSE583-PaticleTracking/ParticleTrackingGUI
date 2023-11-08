@@ -18,6 +18,10 @@ The GUI Component is responsible for creating the user interface that allows use
 ### output
 
 ### How use other components
+- Import data
+- Particle tracking
+- Vector analysis
+- Export data
 
 
 
@@ -44,17 +48,83 @@ The Load Data Component is designed to import external data into the software sy
 - Metadata (csv)
 
 ### output
-    -
+    - Transformed data
+    - Warning message if incorrect data
 ### How use other components
+- GUI
+- Particle tracking
+- Vector analysis
+
+## Name : 
+- Particle tracking
+
+### Overview
+The Particle Tracking Component is designed to track the movement and characteristics of particles or objects within a specified system. It plays a critical role in analyzing and visualizing particle trajectories, enabling various scientific, industrial, and research applications.
+
+### What it does:
+- Detects and identifies individual particles or objects within a system.
+- Tracks the position and motion of particles over time.
+- Analyzes and measures parameters, such as velocity, acceleration, and interactions between particles.
+- Provides visualizations, reports, and data output for further analysis.
+
+### Design and architecture
+The Particle Tracking Component may follow various tracking algorithms and data processing techniques, depending on the specific use case. It is typically modular and extensible to accommodate different tracking methods.
+
+### imputs:
+- User data.
+- Future: Sensors, cameras, simulation data, or external devices.
+### output 
+- file storage, or visualization tools.
+
+### How use other components
+- GUI
+- Load data
+- Export data
 
 
 ## Name : 
-    - GUI
+- Vector Field Statistics
 
 ### Overview
+The Vector Field Statistics Component is designed to compute and analyze statistical properties of vector fields, aiding in the understanding and interpretation of complex data distributions. It is a fundamental tool for a wide range of applications, including fluid dynamics, environmental modeling, and data analysis.
 
 ### What it does:
+- Computation of vector field properties, including mean, variance, divergence, and curl.
+- Visualization of vector field statistics through contour plots, streamlines, and other graphical representations.
+- Integration with other software components to support broader data analysis and modeling.
+
+### Design and architecture
+The Vector Field Statistics Component may follow various statistical algorithms and data processing techniques, depending on the specific use case. It is typically modular and extensible to accommodate different statistical analysis methods.
 
 ### imputs:
+- Transformed data.
 
 ### output 
+- file storage, or visualization tools.
+
+### How use other components
+- GUI
+- Load data
+- Export data
+
+## Name : 
+- Export Data
+
+### Overview
+The Export Data Component is designed to enable users to export data from the software for external use, analysis, or sharing. It provides a flexible and user-friendly way to extract and save data in various formats and destinations.
+
+### What it does:
+- Allows users to select data for export, specifying data ranges, filters, and formats.
+- Supports a variety of export formats like CSV and Excel.
+
+### imputs:
+- Transformed and/or processed data.
+
+### output 
+- csv/Excel output file.
+
+### How use other components
+- GUI
+- Particle Tracking
+- Vector Analysis
+- Export data
