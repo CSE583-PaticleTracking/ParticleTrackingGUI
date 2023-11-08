@@ -6,11 +6,11 @@
 The GUI Component is responsible for creating the user interface that allows users to interact with the application. It provides a visual representation of the software's features and enables users to input data, analyze data, view results, and control the software's functionality.
 
 ### What it does:
-- Rendering user interface elements, such as windows, forms, buttons, input fields, and menus.
-- Managing user interactions, including mouse clicks, keyboard inputs, and touch gestures.
-- Displaying real-time analysis, updates, notifications, and feedback to the user.
-- Validating and processing user inputs.
-- Ensuring accessibility and responsive design for various devices and screen sizes.
+- Renders user interface elements, such as windows, forms, buttons, input fields, and menus.
+- Manages user interactions, including mouse clicks, keyboard inputs, and touch gestures.
+- Displays real-time analysis, updates, notifications, and feedback to the user.
+- Validates and processing user inputs.
+- Ensures accessibility and responsive design for various devices and screen sizes.
 
 ### imputs:
 - User imput
@@ -48,8 +48,9 @@ The Load Data Component is designed to import external data into the software sy
 - Metadata (csv)
 
 ### output
-    - Transformed data
-    - Warning message if incorrect data
+- Transformed data
+- Warning message if incorrect data
+
 ### How use other components
 - GUI
 - Particle tracking
