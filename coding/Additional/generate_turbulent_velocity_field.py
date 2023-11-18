@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 def generate_turbulent_velocity_field(grid_size, num_frames, amplitude = 10000, persistence=0.5, lacunarity=2.0, scale=500.0):
     frames = []
+    print(frames)
     base = np.linspace(10,20,num_frames)
     for _ in range(num_frames):
         # Generate 2D Perlin noise
@@ -23,7 +24,7 @@ def generate_turbulent_velocity_field(grid_size, num_frames, amplitude = 10000, 
                     repeaty=1024,
                     base=0,
                 )
-
+        print(frames)
         # Calculate the gradient
         dx, dy = np.gradient(world)
 
@@ -65,7 +66,7 @@ def plot_frame(frame, title="Turbulent Velocity Field"):
     plt.show()
 
 if __name__ == "__main__":
-    grid_size = 20
+    grid_size = 5
     num_frames = 5
 
     turbulent_frames = generate_turbulent_velocity_field(grid_size, num_frames)
