@@ -3,16 +3,83 @@ read_csv_file is responsible for reading and extracting data from a single CSV f
 and reshape_csv_file takes the extracted data and reshapes it into a grid. The 
 process_csv_folder function then processes all CSV files in a folder and returns 
 a list of reshaped data for each file.
+
+The metadata is stored in a dictionary, and the data is stored in NumPy arrays. 
+The metadata should contain the following information:
+- Sampling frequency (Hz)
+- Number of samples (data rows) per column
+- Number of columns 
+- Calibration status (calibrated = 1 or uncalibrated = 0)
+- Spatial units (e.g., mm, cm, m)
+- Parameter units (e.g., m/s, mm/s, cm/s)
+- Temporal units (e.g., s, ms, min, hr)
 """
 import os
+import csv
 import numpy as np
+
+def add_metadata_to_csv(file_path, metadata):
+    """
+    The function adds metadata to a CSV file.
+    Example usage:
+    csv_file_path = 'path/to/your/file.csv'
+    metadata_to_add = {'Author': 'John Doe', 'Date': '2023-11-24', 'Description': 'This is a sample CSV file with metadata.'} 
+    """
+    # Read existing CSV data
+    with open(file_path, 'r') as file:
+        csv_reader = csv.reader(file)
+        lines = list(csv_reader)
+
+    # Insert metadata at the beginning of the file
+    lines.insert(0, ['# METADATA'] + [f'# {key}: {value}' for key, value in metadata.items()])
+
+    # Write the modified data back to the CSV file
+    with open(file_path, 'w', newline='') as file:
+        csv_writer = csv.writer(file)
+        csv_writer.writerows(lines)
 
 def read_csv_file(file_path):
     """
-    The function reads a CSV file and extracts the x and y positions, and u and v velocities. 
+    The function reads a CSV file and extracts the metadata, x and y positions, and u and v velocities.
+    This version should be more efficient for large CSV files as it takes advantage of the optimized 
+    routines in NumPy and the csv module. The csv.reader is used only for reading metadata lines, and 
+    np.loadtxt handles the numeric data efficiently.
     """
-    # Read CSV file using numpy
-    data = np.genfromtxt(file_path, delimiter=',', skip_header=1)
+    # Initialize variables to store metadata and data
+    metadata = {}
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('The CSV file does not exist.')
+
+    # Read CSV file using csv.reader for metadata and np.loadtxt for data
+    with open(file_path, 'r') as file:
+        csv_reader = csv.reader(file)
+
+        # Read until a non-comment line is encountered
+        for line in csv_reader:
+            if not line[0].startswith('#'):
+                break
+            # Extract metadata from comments
+            key_value = line[0][1:].strip().split(':')
+            if len(key_value) == 2:
+                key, value = key_value
+                metadata[key.strip()] = value.strip()
+
+        # Use np.loadtxt to efficiently load numeric data
+        data = np.loadtxt(file, delimiter=',', comments='#')
+
+        # Check if the data is empty
+        if data.size == 0:
+            raise ValueError('The CSV file does not contain any data.')
+        
+        # Check if the data has the correct number of columns
+        if data.shape[1] != 4:
+            raise ValueError('The CSV file does not contain the correct number of columns.')
+        
+        # Check if the data has enough rows
+        if data.shape[0] < 2:
+            raise ValueError('The CSV file does not contain enough rows.')
 
     # Extract data columns
     x_positions = data[:, 0]
@@ -20,7 +87,15 @@ def read_csv_file(file_path):
     u_velocities = data[:, 2]
     v_velocities = data[:, 3]
 
-    return x_positions, y_positions, u_velocities, v_velocities
+    # Check if either x_positions or y_positions have NaN values
+    if np.isnan(x_positions).any() or np.isnan(y_positions).any():
+        raise ValueError('The spatial coordinates contain NaN values.')
+    
+    # Check if either u_velocities or v_velocities have NaN values
+    if np.isnan(u_velocities).any() or np.isnan(v_velocities).any():
+        raise ValueError('The velocity components contain NaN values.') # This should be a warning instead of an error
+
+    return metadata, x_positions, y_positions, u_velocities, v_velocities
 
 def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
     """
@@ -76,7 +151,7 @@ def process_csv_folder(folder_path):
     return reshaped_data_list
 
 # Example usage
-folder_path = '/path/to/your/csv/files/'
-reshaped_data_list = process_csv_folder(folder_path)
+# folder_path = '/path/to/your/csv/files/'
+# reshaped_data_list = process_csv_folder(folder_path)
 
 # Now, reshaped_data_list contains a list of tuples, each containing the reshaped data from one CSV file
