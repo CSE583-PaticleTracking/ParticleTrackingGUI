@@ -6,9 +6,10 @@ a list of reshaped data for each file.
 
 The metadata is stored in a dictionary, and the data is stored in NumPy arrays. 
 The metadata should contain the following information:
-- Sampling frequency (Hz)
+- Sampling frequency (Hz, frames per second)
 - Number of samples (data rows) per column
 - Number of columns 
+- Frame number (1, 2, etc.)
 - Calibration status (calibrated = 1 or uncalibrated = 0)
 - Spatial units (e.g., mm, cm, m)
 - Parameter units (e.g., m/s, mm/s, cm/s)
