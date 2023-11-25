@@ -9,14 +9,24 @@ The metadata should contain the following information:
 - Sampling frequency (Hz, frames per second)
 - Number of samples (data rows) per column
 - Number of columns 
-- Frame number (1, 2, etc.)
+- Frame number (frame_0000001, frame_0000002, etc.)
 - Calibration status (calibrated = 1 or uncalibrated = 0)
 - Spatial units (e.g., mm, cm, m)
 - Parameter units (e.g., m/s, mm/s, cm/s)
 - Temporal units (e.g., s, ms, min, hr)
+
+Check that the csv files are correctly formatted and contain the correct frame number.
+Check that the spatial coordinates do not contain NaN values.
+Check that the metadata file exists and contains complete and correct information.
+Check that there are frames in the folder.
+Check that there are enough frames in the folder.
+Check that there is enough information inside each file.
+Check that the spatial grids make sense.
+check that the spatial grids values and sizes are consistent across files.
 """
 import os
 import csv
+import re
 import numpy as np
 
 def add_metadata_to_csv(file_path, metadata):
@@ -38,6 +48,58 @@ def add_metadata_to_csv(file_path, metadata):
     with open(file_path, 'w', newline='') as file:
         csv_writer = csv.writer(file)
         csv_writer.writerows(lines)
+
+def extract_metadata_from_csv(file_path):
+    """
+    Extract metadata from a CSV file and return it as a dictionary.
+    Metadata is assumed to be in the comments at the beginning of the file.
+    Example usage:
+    csv_file_path = 'path/to/your/file.csv'
+    metadata = extract_metadata_from_csv(csv_file_path)
+
+    Print or use the extracted metadata as needed
+    for key, value in metadata.items():
+    print(f"{key}: {value}")
+    """
+    metadata = {}
+
+    with open(file_path, 'r') as file:
+        csv_reader = csv.reader(file)
+
+        # Read until a non-comment line is encountered
+        for line in csv_reader:
+            if not line[0].startswith('#'):
+                break
+
+            # Extract metadata from comments
+            key_value = line[0][1:].strip().split(':')
+            if len(key_value) == 2:
+                key, value = key_value
+                metadata[key.strip()] = value.strip()
+
+    return metadata
+
+def extract_frame_number(file_name):
+    """
+    Extract the frame number from a CSV file name.
+    Assumes the frame number is present in the file name.
+    Example usage:
+    csv_file_name = 'data_frame_123.csv'
+    frame_number = extract_frame_number(csv_file_name)
+
+    if frame_number is not None:
+        print(f"Frame Number: {frame_number}")
+    else:
+        print("Frame number not found in the file name.")
+    """
+    # Use regular expression to find the frame number in the file name
+    match = re.search(r'\b\d+\b', file_name)
+    
+    if match:
+        return int(match.group())
+    else:
+        # Handle the case when no frame number is found
+        return None
 
 def read_csv_file(file_path):
     """
