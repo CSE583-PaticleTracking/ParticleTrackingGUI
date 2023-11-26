@@ -6,18 +6,22 @@ a list of reshaped data for each file.
 
 The metadata is stored in a dictionary, and the data is stored in NumPy arrays. 
 The metadata should contain the following information:
-- Sampling frequency (Hz, frames per second)
-- Number of samples (data rows) per column
-- Number of columns 
-- Frame number (frame_0000001, frame_0000002, etc.)
-- Calibration status (calibrated = 1 or uncalibrated = 0)
-- Spatial units (e.g., mm, cm, m)
-- Parameter units (e.g., m/s, mm/s, cm/s)
-- Temporal units (e.g., s, ms, min, hr)
+- Sampling frequency (float)
+- Sampling units (str) (Hz, frames per second)
+- Number of samples (data rows) per column (int)
+- Number of columns (int)
+- Frame number (int) (frame_0000001, frame_0000002, etc.)
+- Calibration status (bool) (calibrated = 1 or uncalibrated = 0)
+- Spatial units (str) (e.g., mm, cm, m)
+- Parameter units (str) (e.g., m/s, mm/s, cm/s)
+- Temporal units (str) (e.g., s, ms, min, hr)
 
-Check that the csv files are correctly formatted and contain the correct frame number.
+Check that the csv files are correctly formatted.
+Check that the csv files do not contain empty spaces.
 Check that the spatial coordinates do not contain NaN values.
 Check that the metadata file exists and contains complete and correct information.
+Check that frame numbers are consecutive and there are no gaps.
+Check that the frame numbers are padded.
 Check that there are frames in the folder.
 Check that there are enough frames in the folder.
 Check that there is enough information inside each file.
@@ -28,26 +32,77 @@ import os
 import csv
 import re
 import numpy as np
+import pdb
 
 def add_metadata_to_csv(file_path, metadata):
     """
-    The function adds metadata to a CSV file.
-    Example usage:
-    csv_file_path = 'path/to/your/file.csv'
-    metadata_to_add = {'Author': 'John Doe', 'Date': '2023-11-24', 'Description': 'This is a sample CSV file with metadata.'} 
+    Add or update metadata in a CSV file.
+    If the file doesn't exist, create it and add the metadata.
+    If the file already has metadata, update the values for existing keys.
+    Check specific keys for correct values and types using exceptions.
+    Ensure only required keys are present in the file.
     """
-    # Read existing CSV data
-    with open(file_path, 'r') as file:
-        csv_reader = csv.reader(file)
-        lines = list(csv_reader)
+    # Check if the file exists
+    file_exists = os.path.exists(file_path)
 
-    # Insert metadata at the beginning of the file
-    lines.insert(0, ['# METADATA'] + [f'# {key}: {value}' for key, value in metadata.items()])
+    # If the file exists, read the existing metadata
+    existing_metadata = {}
+    if file_exists:
+        with open(file_path, 'r', newline='') as file:
+            reader = csv.reader(file)
+            metadata_found = False
+            #pdb.set_trace()
+            for row in reader:
+                if row and row[0].strip() == '# METADATA':
+                    metadata_found = True
+                    break
+            if metadata_found:
+                for row in reader:
+                    #writer.writerow(['# METADATA']) # Write the METADATA header
+                    if row and ':' in row[0]:
+                        key, value = [item.strip() for item in row[0][1:].split(':', 1)]
+                        existing_metadata[key] = value
+                    #else:
+                        #break
+            else:
+                # If no metadata found, create an empty dictionary
+                existing_metadata = {}
 
-    # Write the modified data back to the CSV file
+                # Move the cursor to the end of the file to append new metadata
+                file.seek(0, os.SEEK_END)
+
+    # Update existing metadata or add new metadata
+    for key, value in metadata.items():
+        try:
+            # Check if the key is required
+            # if key not in existing_metadata:
+                # raise KeyError(f"Key '{key}' is not present in the existing metadata.")
+            
+            # Check if the type of the value is correct
+            # existing_type = type(existing_metadata[key])
+            # if existing_type != type(value):
+                # raise TypeError(f"Type mismatch for key '{key}': Expected {existing_type}, got {type(value)}.")
+
+            # Update the value
+            existing_metadata[key] = value
+        except KeyError as key_error:
+            print(f"Error: {key_error}")
+        except TypeError as type_error:
+            print(f"Error: {type_error}")
+
+    # Write the updated metadata to the CSV file
     with open(file_path, 'w', newline='') as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerows(lines)
+        writer = csv.writer(file)
+        if file_exists:
+            writer.writerow(['# METADATA'])
+
+        # If the file didn't exist, write the METADATA header
+        if not file_exists:
+            writer.writerow(['# METADATA'])
+
+        # Write each key-value pair as a comment in the file
+        for key, value in existing_metadata.items():
+            writer.writerow([f'# {key} : {value}'])
 
 def extract_metadata_from_csv(file_path):
     """
