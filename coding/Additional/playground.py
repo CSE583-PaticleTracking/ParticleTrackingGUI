@@ -15,5 +15,9 @@ test_metadata = {'Sampling frequency': 3303,
                  'Parameter units': 'm/s', 
                  'Temporal units': 's'}
 
-rrc.add_metadata_to_csv(test_file_path, test_metadata)
+# rrc.add_metadata_to_csv(test_file_path, test_metadata)
+
+# Create a test for extracting metadata from the CSV file
+extracted_metadata = rrc.extract_metadata_from_csv(test_file_path)
+print(extracted_metadata)
 

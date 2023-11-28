@@ -31,8 +31,9 @@ check that the spatial grids values and sizes are consistent across files.
 import os
 import csv
 import re
-import numpy as np
 import pdb
+import warnings
+import numpy as np
 
 def add_metadata_to_csv(file_path, metadata):
     """
@@ -77,7 +78,7 @@ def add_metadata_to_csv(file_path, metadata):
             # Check if the key is required
             # if key not in existing_metadata:
                 # raise KeyError(f"Key '{key}' is not present in the existing metadata.")
-            
+  
             # Check if the type of the value is correct
             # existing_type = type(existing_metadata[key])
             # if existing_type != type(value):
@@ -149,12 +150,53 @@ def extract_frame_number(file_name):
     """
     # Use regular expression to find the frame number in the file name
     match = re.search(r'\b\d+\b', file_name)
-    
+
     if match:
         return int(match.group())
     else:
         # Handle the case when no frame number is found
         return None
+    
+def extract_and_check_consecutive_numbers(folder_path):
+    """
+    Extract frame numbers from CSV file names in a folder and check if they are consecutive.
+    """
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        print(f"The folder '{folder_path}' does not exist.")
+        return
+
+    # Get a list of all files in the folder
+    file_list = os.listdir(folder_path)
+
+    # Check if there are CSV files in the folder
+    csv_files = [file_name for file_name in file_list if file_name.lower().endswith('.csv')]
+    if not csv_files:
+        print(f"No CSV files found in the folder '{folder_path}'.")
+        return
+
+    # Use a regular expression to extract numbers from file names
+    pattern = re.compile(r'frame_(\d+)')
+
+    # Extract numbers and check for consecutiveness
+    numbers = []
+    for file_name in csv_files:
+        # Check if the file matches the pattern
+        match = pattern.match(file_name)
+        if match:
+            extracted_number = int(match.group(1))
+            numbers.append(extracted_number)
+
+    # Check if the extracted numbers are consecutive
+    expected_numbers = set(range(1, max(numbers) + 1))
+    actual_numbers = set(numbers)
+
+    if expected_numbers != actual_numbers:
+        warnings.warn("Warning: The frame numbers are not consecutive or there are missing frames.")
+
+    # Print the results
+    print(f"Extracted Numbers: {numbers}")
+
 
 def read_csv_file(file_path):
     """
@@ -190,11 +232,11 @@ def read_csv_file(file_path):
         # Check if the data is empty
         if data.size == 0:
             raise ValueError('The CSV file does not contain any data.')
-        
+
         # Check if the data has the correct number of columns
         if data.shape[1] != 4:
             raise ValueError('The CSV file does not contain the correct number of columns.')
-        
+
         # Check if the data has enough rows
         if data.shape[0] < 2:
             raise ValueError('The CSV file does not contain enough rows.')
@@ -208,7 +250,7 @@ def read_csv_file(file_path):
     # Check if either x_positions or y_positions have NaN values
     if np.isnan(x_positions).any() or np.isnan(y_positions).any():
         raise ValueError('The spatial coordinates contain NaN values.')
-    
+
     # Check if either u_velocities or v_velocities have NaN values
     if np.isnan(u_velocities).any() or np.isnan(v_velocities).any():
         raise ValueError('The velocity components contain NaN values.') # This should be a warning instead of an error
@@ -237,39 +279,4 @@ def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
 
     return x_grid, y_grid, u_grid, v_grid
 
-def process_csv_folder(folder_path):
-    """
-    The function processes all CSV files in a folder and returns a list of reshaped data for each file.
-    """
-    # Get a list of all files in the folder
-    all_files = os.listdir(folder_path)
 
-    # Filter out only CSV files
-    csv_files = [file for file in all_files if file.endswith('.csv')]
-
-    # Initialize empty lists to store reshaped data
-    reshaped_data_list = []
-
-    # Loop through each CSV file
-    for csv_file in csv_files:
-        # Construct the full path to the CSV file
-        file_path = os.path.join(folder_path, csv_file)
-
-        # Read CSV file
-        x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
-
-        # Reshape CSV file
-        x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
-
-        # You can do more processing here
-
-        # Append reshaped data to the list
-        reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
-
-    return reshaped_data_list
-
-# Example usage
-# folder_path = '/path/to/your/csv/files/'
-# reshaped_data_list = process_csv_folder(folder_path)
-
-# Now, reshaped_data_list contains a list of tuples, each containing the reshaped data from one CSV file
