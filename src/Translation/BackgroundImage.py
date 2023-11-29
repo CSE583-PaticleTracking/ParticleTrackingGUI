@@ -51,4 +51,4 @@ def BackgroundImage(inputnames, outputname='background.tif'):
     # Save the result
     Image.fromarray(bg).save(outputname)
 
-BackgroundImage('path/to/images/*.png')
+#BackgroundImage('path/to/images/*.png')
