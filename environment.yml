@@ -1,0 +1,7 @@
+name: particlepals
+channels:
+  - defaults
+dependencies:
+  - pandas=2.1.1
+  - streamlit=1.24.1
+prefix: /home/user/anaconda3/envs/particle_tracking
