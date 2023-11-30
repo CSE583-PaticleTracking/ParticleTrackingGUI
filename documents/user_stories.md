@@ -42,3 +42,17 @@ track objects in everyday life. He wants a well documented and explanatory GUI t
 particle tracking. Doug has no experience in  particle tracking so he wants proper documentation and an easy 
 to use interface. 
 
+Galen is a professional researcher. Galen has a example videos of a busy intersection and would like to find
+how many pedestrians and cars pass through it. He wants a method to not only track the objects but also
+export specific data to create a traffic model of the intersection. Galen has limited experience tracking 
+so he needs an well documented and easy to use software. 
+
+Aaron is a scientist who studies fluid mechanics. Aaron has videos with tracer particles in a fluid and wants
+to find characteristics of the flow. He needs a way to track these tracer particles in his flow to estimate 
+fluid velocity. Aaron has some particle tracking experience, so he wants an open source code and an easy to
+use GUI.
+
+Mia is a student researcher in biology. Mia has some tracking data from her experiments. She wants to present 
+her data, but she needs to format her data and create good figures. Despite her previous tracking experience, 
+she needs an easy to use interface. As well as a well documented GUI that guides her through uploading her 
+data and creating plots. 
