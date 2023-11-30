@@ -140,7 +140,7 @@ def extract_frame_number(file_name):
     Extract the frame number from a CSV file name.
     Assumes the frame number is present in the file name.
     Example usage:
-    csv_file_name = 'data_frame_123.csv'
+    csv_file_name = 'data_frame_000123.csv'
     frame_number = extract_frame_number(csv_file_name)
 
     if frame_number is not None:
