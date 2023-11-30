@@ -1,4 +1,4 @@
-### User Story
+## User Stories
 
 #### Who is the user?
 - Scientist
@@ -17,6 +17,7 @@
 4. Speed up processing / High Processing power
 5. Some data analysis featues 
 
+### Example User Stories
 Michelle is a research scientist. Michelle wants to tracks particles in her image data. 
 She wants a fast and effective means to track, process, analyze, and store her data. Michelle has 
 particle tracking experience and values an open source code that allows for edits.
