@@ -4,51 +4,59 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# set page config
-st.set_page_config(layout="wide")
-
 # import our package/functions
 
+
+# set page config
+st.set_page_config(layout="wide")
+st.markdown("""
+<style>
+.big-font {
+    font-size:40px;
+}
+.small-font {
+    font-size:20px;
+}
+.block-container {
+    padding-top: 0px;
+    margin-top: 30px;
+    padding-bottom: 10px;
+}
+.st-emotion-cache-16txtl3 {
+    padding-top: 0px;
+    margin-top: 100px;
+    margin-left: 50px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 ## Define sidebar elements
-upload_button = st.sidebar.button("Upload")
 
 ## Define main window elements
+uploaded_file = st.sidebar.file_uploader("Upload")
 
-row1_1, row1_2 = st.columns((1, 3))
-
-with row1_1:
-    st.title("Particle Pals")
-
-with row1_2:
-    st.write(
-        """
-        #
-        """
-        )
-    st.write("Particle Tracking and Vector Analysis Application")
+st.markdown('<p class="big-font">Particle Pals</p>', unsafe_allow_html=True)
+st.markdown('<p class="small-font">Particle Tracking and Vector Analysis Application</p>', unsafe_allow_html=True)
 
 # divider between title/description and graphics
 st.divider()
 
-row2_1, row2_2 = st.columns((1, 2))
+col1, col2 = st.columns((1, 2))
 
-with row2_1:
-    st.write(
-        """
-        Upload data to get started.
-        """
-    )
+with col1:
+    instructions = st.text("Upload data to get started.")
+    if uploaded_file is not None:
+        # update instructions
+        instructions.text("Populate input fields and execute computation.")
 
-with row2_2:
+with col2:
     image = st.image('./default_graphic.jpg')
-
-## Define placeholders for element to be filled in later
-progress_bar = st.empty()
-
-
-# We clear elements by calling empty on them.
-progress_bar.empty()
-
+    if uploaded_file is not None:
+        # update graphic
+        
+        # add elements to sidebar
+        test_button = st.sidebar.button("test")
+        image.image(uploaded_file)
 
 footer = """<style>
 a:link , a:visited{
