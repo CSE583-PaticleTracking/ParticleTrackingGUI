@@ -1,0 +1,9 @@
+name: particlepals
+channels:
+  - defaults
+dependencies:
+  - pandas=2.1.1
+  - pip=23.3
+  - pip:
+      - streamlit==1.28.2
+prefix: /home/user/anaconda3/envs/particlepals
