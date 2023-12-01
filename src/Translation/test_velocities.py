@@ -13,4 +13,14 @@ class test_Velocities(unittest.TestCase):
         Testing the perceptron
         """
 
-        return 
+        """
+        vtracks = 
+
+        framerange =
+
+        noisy = 0
+
+        self.AssertEqual = 
+        """
+
+        return  
