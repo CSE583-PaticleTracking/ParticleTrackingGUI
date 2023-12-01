@@ -1,50 +1,62 @@
 import streamlit as st
+import pandas as pd
+from PIL import Image
+# import cv2
 import numpy as np
 
-# Interactive Streamlit elements, like these sliders, return their value.
-# This gives you an extremely simple interaction model.
-iterations = st.sidebar.slider("Level of detail", 2, 20, 10, 1)
-separation = st.sidebar.slider("Separation", 0.7, 2.0, 0.7885)
+def particle_tracking_app(inputnames, invert, noisy):
+    # Placeholder for particle tracking function
+    # Replace this with your actual particle tracking function
+    # and return the required output.
 
-# Non-interactive elements return a placeholder to their location
-# in the app. Here we're storing progress_bar to update it later.
-progress_bar = st.sidebar.progress(0)
+    # For demonstration purposes, returning dummy data
+    vtracks = [{"length": 10, "coordinates": (0, 0), "time": 1, "velocity": (1, 1)}]
+    ntracks = 1
+    meanlength = 10
+    rmslength = 5
 
-# These two elements will be filled in later, so we create a placeholder
-# for them using st.empty()
-frame_text = st.sidebar.empty()
-image = st.empty()
+    return vtracks, ntracks, meanlength, rmslength
 
-m, n, s = 960, 640, 400
-x = np.linspace(-m / s, m / s, num=m).reshape((1, m))
-y = np.linspace(-n / s, n / s, num=n).reshape((n, 1))
+# Streamlit app layout
+st.title("Particle Tracking App")
 
-for frame_num, a in enumerate(np.linspace(0.0, 4 * np.pi, 100)):
-    # Here were setting value for these two elements.
-    progress_bar.progress(frame_num)
-    frame_text.text("Frame %i/100" % (frame_num + 1))
+# Input parameters
+uploaded_file = st.file_uploader("upload file", type=["mp4", "jpg", "png", "jpeg"])
 
-    # Performing some fractal wizardry.
-    Any = np.empty([])
-    c = separation * np.exp(1j * a)
-    Z = np.tile(x, (n, 1)) + 1j * np.tile(y, (1, m))
-    C = np.full((n, m), c)
-    M: Any = np.full((n, m), True, dtype=bool)
-    N = np.zeros((n, m))
+if uploaded_file is not None:
+    if uploaded_file.type == 'video/mp4':
+        video_bytes = uploaded_file.read()
+        st.video(video_bytes)
 
-    for i in range(iterations):
-        Z[M] = Z[M] * Z[M] + C[M]
-        M[np.abs(Z) > 2] = False
-        N[M] = i
+    elif uploaded_file.type in ['image/jpg', 'image/jpeg', 'image/png']:
 
-    # Update the image placeholder by calling the image() function on it.
-    image.image(1.0 - (N / N.max()), use_column_width=True)
+        image = Image.open(uploaded_file)
+        st.image(image, caption="uploaded picture", use_column_width=True)
+    else:
+        st.warning("nonsupport file type")
 
-# We clear elements by calling empty on them.
-progress_bar.empty()
-frame_text.empty()
 
-# Streamlit widgets automatically run the script from top to bottom. Since
-# this button is not connected to any other logic, it just causes a plain
-# rerun.
-st.button("Re-run")
+invert = st.radio("Invert", [0, 1, -1], index=2, format_func=lambda option: {0: "Bright", 1: "Dark", -1: "Any"}[option])
+noisy = st.checkbox("Noisy (Plotting and Visualization Options)")
+
+# Button to trigger particle tracking
+if st.button("Run Particle Tracking"):
+    st.info("Particle tracking in progress...")
+
+    # Call the particle tracking function
+    vtracks, ntracks, meanlength, rmslength = particle_tracking_app(
+        uploaded_file, invert, noisy
+    )
+
+    st.success("Particle tracking completed!")
+
+    # Display the output
+    st.subheader("Output:")
+    st.write(f"Total Number of Tracks: {ntracks}")
+    st.write(f"Mean Length of Tracks: {meanlength}")
+    st.write(f"Root Mean Square Length of Tracks: {rmslength}")
+
+    # Display a sample of tracked particle information
+    if ntracks > 0:
+        st.subheader("Sample Tracked Particle Information:")
+        st.table(vtracks[:min(5, ntracks)])
