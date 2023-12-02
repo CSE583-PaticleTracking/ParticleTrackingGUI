@@ -32,14 +32,6 @@ def BackgroundImage(inputnames, outputname='background.tif'):
         for i in range(Nf):
             im.seek(i)
             bg0 += np.array(im)
-    else:
-        # Reading a sequence of images
-        Nf = len(files)
-        im = Image.open(files[0])
-        bg0 = np.zeros((im.height, im.width, 3), dtype=np.float32)
-        for file in files:
-            im = Image.open(file)
-            bg0 += np.array(im)
 
     # Calculate the mean
     bg = np.round(bg0 / Nf).astype(np.uint8)
