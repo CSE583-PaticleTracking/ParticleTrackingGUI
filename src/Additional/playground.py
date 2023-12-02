@@ -18,8 +18,12 @@ test_metadata = {'Sampling frequency': 3303,
 # rrc.add_metadata_to_csv(test_file_path, test_metadata)
 
 # Create a test for extracting metadata from the CSV file
-extracted_metadata = rrc.extract_metadata_from_csv(test_file_path)
-print(extracted_metadata)
+# extracted_metadata = rrc.extract_metadata_from_csv(test_file_path)
+# print(extracted_metadata)
+
+# Create a test for extracting frame number from the CSV file
+directory_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
+rrc.extract_and_check_consecutive_numbers(directory_path)
 
 
 
@@ -30,39 +34,36 @@ print(extracted_metadata)
 
 
 
+# def process_csv_folder(folder_path):
+#     """
+#     The function processes all CSV files in a folder and returns a list of reshaped data for each file.
+#     """
+#     # Get a list of all files in the folder
+#     all_files = os.listdir(folder_path)
 
+#     # Filter out only CSV files
+#     csv_files = [file for file in all_files if file.endswith('.csv')]
 
+#     # Initialize empty lists to store reshaped data
+#     reshaped_data_list = []
 
-def process_csv_folder(folder_path):
-    """
-    The function processes all CSV files in a folder and returns a list of reshaped data for each file.
-    """
-    # Get a list of all files in the folder
-    all_files = os.listdir(folder_path)
+#     # Loop through each CSV file
+#     for csv_file in csv_files:
+#         # Construct the full path to the CSV file
+#         file_path = os.path.join(folder_path, csv_file)
 
-    # Filter out only CSV files
-    csv_files = [file for file in all_files if file.endswith('.csv')]
+#         # Read CSV file
+#         x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
 
-    # Initialize empty lists to store reshaped data
-    reshaped_data_list = []
+#         # Reshape CSV file
+#         x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
 
-    # Loop through each CSV file
-    for csv_file in csv_files:
-        # Construct the full path to the CSV file
-        file_path = os.path.join(folder_path, csv_file)
+#         # You can do more processing here
 
-        # Read CSV file
-        x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
+#         # Append reshaped data to the list
+#         reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
 
-        # Reshape CSV file
-        x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
-
-        # You can do more processing here
-
-        # Append reshaped data to the list
-        reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
-
-    return reshaped_data_list
+#     return reshaped_data_list
 
 # Example usage
 # folder_path = '/path/to/your/csv/files/'

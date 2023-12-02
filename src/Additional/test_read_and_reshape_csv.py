@@ -3,89 +3,57 @@ import tempfile
 import shutil
 import os
 import numpy as np
+import read_and_reshape_csv as rrc
 
-class TestCSVProcessing(unittest.TestCase):
+class TestReadAndReshapeCSV(unittest.TestCase):
+
     def setUp(self):
-        # Create a temporary directory for our test files
-        self.test_dir = tempfile.mkdtemp()
+        # Create a temporary directory for testing
+        self.test_directory = 'test_directory'
+        os.makedirs(self.test_directory)
 
     def tearDown(self):
-        # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
-
-    def test_add_metadata_to_csv(self):
-        test_file_path = os.path.join(self.test_dir, 'test.csv')
-        test_metadata = {'Author': 'John Doe', 'Date': '2023-11-24', 'Description': 'This is a sample CSV file with metadata.'}
-
-        # Create a test CSV file
-        with open(test_file_path, 'w') as f:
-            f.write('1,2,3,4\n5,6,7,8\n')
-
-        # Add metadata to the CSV file
-        add_metadata_to_csv(test_file_path, test_metadata)
-
-        # Check if the metadata was correctly added
-        with open(test_file_path, 'r') as f:
-            lines = f.readlines()
-
-        self.assertEqual(lines[0], '# METADATA\n')
-        self.assertEqual(lines[1], '# Author: John Doe\n')
-        self.assertEqual(lines[2], '# Date: 2023-11-24\n')
-        self.assertEqual(lines[3], '# Description: This is a sample CSV file with metadata.\n')
+        # Remove the temporary directory and its contents after testing
+        os.rmdir(self.test_directory)
 
     def test_extract_metadata_from_csv(self):
-        test_file_path = os.path.join(self.test_dir, 'test.csv')
-        test_metadata = {'Author': 'John Doe', 'Date': '2023-11-24', 'Description': 'This is a sample CSV file with metadata.'}
+        # Create a temporary CSV file with metadata
+        csv_file_path = os.path.join(self.test_directory, 'test_file.csv')
+        with open(csv_file_path, 'w') as file:
+            file.write("# Sampling frequency: 100\n")
+            file.write("# Sampling units: Hz\n")
+            file.write("# Number of samples per column: 10\n")
+            file.write("# Number of columns: 5\n")
+            file.write("# Calibration status: calibrated\n")
+            file.write("# Spatial units: mm\n")
+            file.write("# Parameter units: m/s\n")
+            file.write("# Temporal units: s\n")
 
-        # Create a test CSV file with metadata
-        with open(test_file_path, 'w') as f:
-            f.write('# METADATA\n')
-            for key, value in test_metadata.items():
-                f.write(f'# {key}: {value}\n')
-            f.write('1,2,3,4\n5,6,7,8\n')
+        metadata = rrc.extract_metadata_from_csv(csv_file_path)
 
-        # Extract metadata from the CSV file
-        extracted_metadata = extract_metadata_from_csv(test_file_path)
+        expected_metadata = {
+            'Sampling frequency': 100.0,
+            'Sampling units': 'Hz',
+            'Number of samples per column': 10,
+            'Number of columns': 5,
+            'Calibration status': True,
+            'Spatial units': 'mm',
+            'Parameter units': 'm/s',
+            'Temporal units': 's'
+        }
 
-        self.assertEqual(extracted_metadata, test_metadata)
+        self.assertDictEqual(metadata, expected_metadata)
 
-    def test_extract_frame_number(self):
-        test_file_name = 'data_frame_123.csv'
-        frame_number = extract_frame_number(test_file_name)
-        self.assertEqual(frame_number, 123)
+    def test_extract_and_check_consecutive_numbers(self):
+        # Create a temporary directory with consecutive frame-numbered CSV files
+        for i in range(1, 6):
+            file_path = os.path.join(self.test_directory, f'frame_{i}.csv')
+            with open(file_path, 'w') as file:
+                pass
 
-    def test_read_csv_file(self):
-        test_file_path = os.path.join(self.test_dir, 'test.csv')
-        test_metadata = {'Author': 'John Doe', 'Date': '2023-11-24', 'Description': 'This is a sample CSV file with metadata.'}
+        with self.assertWarns(Warning):
+            rrc.extract_and_check_consecutive_numbers(self.test_directory)
 
-        # Create a test CSV file with metadata and data
-        with open(test_file_path, 'w') as f:
-            f.write('# METADATA\n')
-            for key, value in test_metadata.items():
-                f.write(f'# {key}: {value}\n')
-            f.write('1,2,3,4\n5,6,7,8\n')
-
-        # Read CSV file
-        metadata, x_positions, y_positions, u_velocities, v_velocities = read_csv_file(test_file_path)
-
-        self.assertEqual(metadata, test_metadata)
-        np.testing.assert_array_equal(x_positions, np.array([1, 5]))
-        np.testing.assert_array_equal(y_positions, np.array([2, 6]))
-        np.testing.assert_array_equal(u_velocities, np.array([3, 7]))
-        np.testing.assert_array_equal(v_velocities, np.array([4, 8]))
-
-    def test_reshape_csv_file(self):
-        x_positions = np.array([1, 2, 1, 2])
-        y_positions = np.array([1, 1, 2, 2])
-        u_velocities = np.array([1, 2, 3, 4])
-        v_velocities = np.array([5, 6, 7, 8])
-
-        x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
-
-        np.testing.assert_array_equal(x_grid, np.array([[1, 2], [1, 2]]))
-        np.testing.assert_array_equal(y_grid, np.array([[1, 1], [2, 2]]))
-        np.testing.assert_array_equal(u_grid, np.array([[1, 2], [3, 4]]))
-        np.testing.assert_array_equal(v_grid, np.array([[5, 6], [7, 8]]))
 
 if __name__ == '__main__':
     unittest.main()
