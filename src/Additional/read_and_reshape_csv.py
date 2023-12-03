@@ -45,6 +45,22 @@ def extract_metadata_from_csv(file_path):
     Print or use the extracted metadata as needed
     for key, value in metadata.items():
         print(f"{key}: {value}")
+
+    Input:
+    - file_path: The path to the CSV file.
+    Output:
+    - metadata: A dictionary containing metadata.
+    Example usage:
+    >>> file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/metadata.csv'
+    >>> metadata = extract_metadata_from_csv(file_path)
+    >>> metadata = {'Sampling frequency': 3303.0, 
+                    'Sampling units': 'Hz', 
+                    'Number of samples per column': 1000, 
+                    'Number of columns': 4, 
+                    'Calibration status': True, 
+                    'Spatial units': 'mm', 
+                    'Parameter units': 'm/s', 
+                    'Temporal units': 's'}
     """
     metadata = {}
 
@@ -158,6 +174,16 @@ def read_csv_file(file_path):
     This version should be more efficient for large CSV files as it takes advantage of the optimized 
     routines in NumPy and the csv module. The csv.reader is used only for reading metadata lines, and 
     np.loadtxt handles the numeric data efficiently.
+    Input:
+    - file_path: The path to the CSV file.
+    Output:
+    - x_positions: A 1D array containing x positions.
+    - y_positions: A 1D array containing y positions.
+    - u_velocities: A 1D array containing u velocities.
+    - v_velocities: A 1D array containing v velocities.
+    Example usage:
+    >>> file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/frame_1.csv'
+    >>> x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
     """
 
     # Check if the file exists
@@ -210,5 +236,52 @@ def read_csv_file(file_path):
 
     return x_positions, y_positions, u_velocities, v_velocities
 
+def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
+    """
+    The function reshapes the extracted data into a grid.
+    Input:
+    - x_positions: A 1D array containing x positions.
+    - y_positions: A 1D array containing y positions.
+    - u_velocities: A 1D array containing u velocities.
+    - v_velocities: A 1D array containing v velocities.
+    Output:
+    - x_grid: A 2D array containing x positions.
+    - y_grid: A 2D array containing y positions.
+    - u_grid: A 2D array containing u velocities.
+    - v_grid: A 2D array containing v velocities. 
+    Example usage:
+    >>> x_positions = [1, 2, 3, 1, 2, 3]
+    >>> y_positions = [4, 4, 4, 5, 5, 5]
+    >>> u_velocities = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    >>> v_velocities = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6]
+    >>> x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+    """
+    # Check if any of the input arrays are empty
+    if len(x_positions) == 0 or len(y_positions) == 0 or len(u_velocities) == 0 or len(v_velocities) == 0:
+        raise IndexError("Arrays x_positions, y_positions, u_velocities, v_velocities are empty.")
 
+    try:
+        # Create a grid using x and y positions
+        x_grid, y_grid = np.meshgrid(np.unique(x_positions), np.unique(y_positions))
+    except ValueError:
+        # Raised if shapes of x_positions, y_positions are not compatible
+        raise ValueError("Shapes of x_positions, y_positions are not compatible for reshaping into a grid.")
 
+    # Reshape velocity components to match the grid
+    u_grid = np.zeros_like(x_grid)
+    v_grid = np.zeros_like(y_grid)
+
+    for x, y, u, v in zip(x_positions, y_positions, u_velocities, v_velocities):
+        try:
+            # Find indices corresponding to x and y in the grid
+            i = np.where(x_grid[0, :] == x)[0][0]
+            j = np.where(y_grid[:, 0] == y)[0][0]
+        except IndexError:
+            # Raised if unable to find x or y in the grid
+            raise IndexError("Unable to find x or y in the grid.")
+
+        # Assign velocity components to the grid
+        u_grid[j, i] = u
+        v_grid[j, i] = v
+
+    return x_grid, y_grid, u_grid, v_grid

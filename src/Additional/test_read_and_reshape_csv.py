@@ -176,6 +176,38 @@ class TestReadAndReshapeCSV(unittest.TestCase):
     #     with self.assertWarns(Warning, msg='The velocity components contain NaN values.'):
     #         rrc.read_csv_file(self.frame_000123)
 
+    def test_reshape_csv_file(self):
+        """
+        Test that the function reshapes the extracted data into a grid.
+        """
+        # Test case with valid input data
+        x_positions = [1, 2, 3, 1, 2, 3]
+        y_positions = [4, 4, 4, 5, 5, 5]
+        u_velocities = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+        v_velocities = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6]
+
+        x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+
+        # Assert that the output grids have the expected shapes
+        self.assertEqual(x_grid.shape, (2, 3))
+        self.assertEqual(y_grid.shape, (2, 3))
+        self.assertEqual(u_grid.shape, (2, 3))
+        self.assertEqual(v_grid.shape, (2, 3))
+
+        # Test case with empty input arrays
+        with self.assertRaises(IndexError):
+            rrc.reshape_csv_file([], [], [], [])
+
+        # # Test case with incompatible shapes of input arrays
+        # with self.assertRaises(ValueError):
+        #     try:
+        #         rrc.reshape_csv_file([1, 2, 3], [4, 5, 6, 7], [0.1, 0.2, 0.3], [1.1, 1.2, 1.3])
+        #     except ValueError as e:
+        #         self.assertIn("Shapes of x_positions, y_positions are not compatible for reshaping into a grid.", str(e))
+
+        # # Test case with x or y not found in the grid
+        # with self.assertRaises(IndexError):
+        #     rrc.reshape_csv_file([1, 2, 3], [4, 5, 6], [0.1, 0.2, 0.3], [1.1, 1.2, 1.3])
 
 if __name__ == '__main__':
     unittest.main()
