@@ -83,7 +83,7 @@ def extract_metadata_from_csv(file_path):
         metadata['Sampling frequency'] = float(metadata['Sampling frequency'])
         metadata['Number of samples per column'] = int(metadata['Number of samples per column'])
         metadata['Number of columns'] = int(metadata['Number of columns'])
-        metadata['Calibration status'] = metadata['Calibration status'].lower() == 'calibrated'
+        metadata['Calibration status'] = bool(metadata['Calibration status'])
     except ValueError as e:
         raise ValueError(f"Invalid data type for key: {str(e)}")
 
@@ -149,9 +149,66 @@ def extract_and_check_consecutive_numbers(directory):
         warnings.warn("Warning: The extracted numbers are not consecutive or there are missing numbers.")
 
     # Print the extracted numbers
-    print(f"Extracted Numbers: {numbers}")
+    # print(f"Extracted Numbers: {numbers}")
     return numbers
 
+def read_csv_file(file_path):
+    """
+    The function reads a CSV file and extracts the x and y positions, and u and v velocities.
+    This version should be more efficient for large CSV files as it takes advantage of the optimized 
+    routines in NumPy and the csv module. The csv.reader is used only for reading metadata lines, and 
+    np.loadtxt handles the numeric data efficiently.
+    """
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('The CSV file does not exist.')
+
+    # Read CSV file using csv.reader for metadata and np.loadtxt for data
+    with open(file_path, 'r') as file:
+        csv_reader = csv.reader(file)
+
+        # Read until a non-comment line is encountered
+        for line in csv_reader:
+            if not line[0].startswith('#'):
+                break
+
+        # Use np.loadtxt to efficiently load numeric data
+        try:
+            # Use np.loadtxt to efficiently load numeric data
+            data = np.loadtxt(file, delimiter=',', comments='#')
+
+            # Check if the data is empty
+            if data.size == 0:
+                raise ValueError('The CSV file does not contain any data.')
+
+        except UserWarning as e:
+            # Handle the warning and raise a ValueError with a custom message
+            raise ValueError(f'The CSV file is empty. {str(e)}')
+
+        # Check if the data has the correct number of columns
+        if data.shape[1] != 4:
+            raise ValueError('The CSV file does not contain the correct number of columns.')
+
+        # Check if the data has enough rows
+        if data.shape[0] < 2:
+            raise ValueError('The CSV file does not contain enough rows.')
+
+    # Extract data columns
+    x_positions = data[:, 0]
+    y_positions = data[:, 1]
+    u_velocities = data[:, 2]
+    v_velocities = data[:, 3]
+
+    # Check if either x_positions or y_positions have NaN values
+    if np.isnan(x_positions).any() or np.isnan(y_positions).any():
+        raise ValueError('The spatial coordinates contain NaN values.')
+
+    # Check if either u_velocities or v_velocities have NaN values
+    if np.isnan(u_velocities).any() or np.isnan(v_velocities).any():
+        raise ValueError('The velocity components contain NaN values.') # This should be a warning instead of an error
+
+    return x_positions, y_positions, u_velocities, v_velocities
 
 
 

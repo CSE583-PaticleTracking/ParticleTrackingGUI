@@ -5,7 +5,7 @@ import os
 import read_and_reshape_csv as rrc
 
 # Create a test CSV file with metadata and data
-test_file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/coding/Additional/turbulent_frames/metadata.csv'
+test_file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/metadata.csv'
 test_metadata = {'Sampling frequency': 3303, 
                  'Sampling units': 'Hz', 
                  'Number of samples per column': 1000, 
@@ -22,9 +22,23 @@ test_metadata = {'Sampling frequency': 3303,
 # print(extracted_metadata)
 
 # Create a test for extracting frame number from the CSV file
-directory_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
-rrc.extract_and_check_consecutive_numbers(directory_path)
+# directory_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
+# rrc.extract_and_check_consecutive_numbers(directory_path)
 
+# Create a test for reading the CSV file
+test_frame_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/frame_1.csv'
+x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(test_frame_path)
+print(x_positions)
+print(y_positions)
+print(u_velocities)
+print(v_velocities)
+
+# Create a test for reshaping the CSV file
+x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+print(x_grid)
+print(y_grid)
+print(u_grid)
+print(v_grid)
 
 
 

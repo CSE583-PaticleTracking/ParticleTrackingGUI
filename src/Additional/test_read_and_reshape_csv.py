@@ -1,12 +1,17 @@
+"""
+Test the functions in the read_and_reshape_csv module.
+"""
 import unittest
-import tempfile
-import shutil
 import os
-import numpy as np
 import warnings
+
+import numpy as np
 import read_and_reshape_csv as rrc
 
 class TestReadAndReshapeCSV(unittest.TestCase):
+    """
+    Class for testing the functions in the read_and_reshape_csv module.
+    """
 
     test_directory = 'test_directory'
 
@@ -14,6 +19,9 @@ class TestReadAndReshapeCSV(unittest.TestCase):
         # Create a temporary directory for testing if it doesn't exist
         if not os.path.exists(self.test_directory):
             os.makedirs(self.test_directory)
+
+        # Create a temporary CSV file for testing
+        self.frame_000123 = 'frame_000123.csv'
 
     def tearDown(self):
         # Remove the files in the temporary directory
@@ -23,18 +31,19 @@ class TestReadAndReshapeCSV(unittest.TestCase):
 
         # Remove the temporary directory
         os.rmdir(self.test_directory)
+
     def test_extract_metadata_from_csv(self):
         """
         Test that the function extracts metadata from a CSV file.
         """
         # Create a temporary CSV file with metadata
-        csv_file_path = os.path.join(self.test_directory, 'test_file.csv')
+        csv_file_path = os.path.join(self.test_directory, 'metadata.csv')
         with open(csv_file_path, 'w') as file:
             file.write("# Sampling frequency: 100\n")
             file.write("# Sampling units: Hz\n")
             file.write("# Number of samples per column: 10\n")
             file.write("# Number of columns: 5\n")
-            file.write("# Calibration status: calibrated\n")
+            file.write("# Calibration status: True\n")
             file.write("# Spatial units: mm\n")
             file.write("# Parameter units: m/s\n")
             file.write("# Temporal units: s\n")
@@ -73,6 +82,99 @@ class TestReadAndReshapeCSV(unittest.TestCase):
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, Warning))
             self.assertIn("Warning: The extracted numbers are not consecutive or there are missing numbers.", str(w[-1].message))
+
+    def test_valid_csv_file(self):
+        """
+        Test that the function checks if a CSV file is valid.
+        """
+        # Create a valid CSV file
+        with open(self.frame_000123, 'w') as file:
+            file.write("x, y, u, v\n")
+            file.write("1.0, 2.0, 3.0, 4.0\n")
+            file.write("2.0, 3.0, 4.0, 5.0\n")
+        # Test the function
+        x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(self.frame_000123)
+
+        # Check data
+        expected_x_positions = np.array([1.0, 2.0])
+        expected_y_positions = np.array([2.0, 3.0])
+        expected_u_velocities = np.array([3.0, 4.0])
+        expected_v_velocities = np.array([4.0, 5.0])
+
+        np.testing.assert_array_equal(x_positions, expected_x_positions)
+        np.testing.assert_array_equal(y_positions, expected_y_positions)
+        np.testing.assert_array_equal(u_velocities, expected_u_velocities)
+        np.testing.assert_array_equal(v_velocities, expected_v_velocities)
+
+    def test_file_not_exist(self):
+        """
+        Test when the CSV file does not exist.
+        """
+        # Test when the file does not exist
+        with self.assertRaises(FileNotFoundError):
+            rrc.read_csv_file('nonexistent_file.csv')
+
+    def test_empty_csv_file(self):
+        """
+        Test when the CSV file does not contain any data.
+        """
+        # Test when the CSV file is empty
+        with open(self.frame_000123, 'w'):
+            pass
+
+        with self.assertRaises(ValueError, msg='The CSV file does not contain any data.'):
+            rrc.read_csv_file(self.frame_000123)
+
+    def test_invalid_column_number(self):
+        """
+        Test when the CSV file does not contain the correct number of columns.
+        """
+        # Test when the CSV file does not have the correct number of columns
+        with open(self.frame_000123, 'w') as file:
+            file.write("x, y, u\n")
+            file.write("1.0, 2.0, 3.0\n")
+            file.write("2.0, 3.0, 4.0\n")
+
+        with self.assertRaises(ValueError, msg='The CSV file does not contain the correct number of columns.'):
+            rrc.read_csv_file(self.frame_000123)
+
+    # def test_insufficient_rows(self):
+    #     """
+    #     Test when the CSV file does not contain enough rows.
+    #     """
+    #     # Test when the CSV file does not contain enough rows
+    #     with open(self.frame_000123, 'w') as file:
+    #         file.write("x, y, u, v\n")
+    #         file.write("1.0, 2.0, 3.0, 4.0\n")
+
+    #     with self.assertRaises(ValueError, msg='The CSV file does not contain enough rows.'):
+    #         rrc.read_csv_file(self.frame_000123)
+
+    def test_nan_values_in_coordinates(self):
+        """
+        Test when spatial coordinates contain NaN values.
+        """
+        # Test when spatial coordinates contain NaN values
+        with open(self.frame_000123, 'w') as file:
+            file.write("x, y, u, v\n")
+            file.write("1.0, NaN, 3.0, 4.0\n")
+            file.write("2.0, 3.0, 4.0, 5.0\n")
+
+        with self.assertRaises(ValueError, msg='The spatial coordinates contain NaN values.'):
+            rrc.read_csv_file(self.frame_000123)
+
+    # def test_nan_values_in_velocities(self):
+    #     """
+    #     Test when velocity components contain NaN values.
+    #     """
+    #     # Test when velocity components contain NaN values
+    #     with open(self.frame_000123, 'w') as file:
+    #         file.write("x, y, u, v\n")
+    #         file.write("1.0, 2.0, NaN, 4.0\n")
+    #         file.write("2.0, 3.0, 4.0, 5.0\n")
+
+    #     with self.assertWarns(Warning, msg='The velocity components contain NaN values.'):
+    #         rrc.read_csv_file(self.frame_000123)
 
 
 if __name__ == '__main__':
