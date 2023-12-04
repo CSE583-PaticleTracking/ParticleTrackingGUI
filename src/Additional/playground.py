@@ -41,22 +41,32 @@ import vector_operations as vo
 # print(u_grid)
 # print(v_grid)
 
-# Create a test for operating on a grid
-# Create a grid
-grid = 2 * np.ones((2, 2))
-# Create a vector
-vector = 'invalid' #0 * np.ones((2, 2))
-# Specify the operation
-operation = 'divide'
-# Perform the operation on the grid
-result = vo.operate_on_grid(grid, vector, operation)
+# # Create a test for operating on a grid
+# # Create a grid
+# grid = 2 * np.ones((2, 2))
+# # Create a vector
+# vector = 0 * np.ones((2, 2))
+# # Specify the operation
+# operation = 'divide'
+# # Perform the operation on the grid
+# result = vo.operate_on_grid(grid, vector, operation)
+# print("Original Grid:")
+# print(grid)
+# print("\nVector:")
+# print(vector)
+# print("\nResult after {}ing the vector to the grid:".format(operation.capitalize()))
+# print(result)
 
-print("Original Grid:")
-print(grid)
-print("\nVector:")
-print(vector)
-print("\nResult after {}ing the vector to the grid:".format(operation.capitalize()))
-print(result)
+# Create a test for calculating the magnitude and angle of a vector field
+# Create a grid
+grid = np.array([[np.nan, 0], [0, 1]])
+# Calculate the magnitude and angle of the vector field
+magnitude_grid, angle_grid = vo.calculate_magnitude_and_angle(grid, grid)
+print("Magnitude:")
+print(magnitude_grid)
+print("\nAngle:")
+print(angle_grid)
+
 
 
 

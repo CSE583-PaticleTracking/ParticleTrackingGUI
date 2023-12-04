@@ -62,3 +62,38 @@ def operate_on_grid(grid, vector, operation):
         warnings.warn("Division by zero occurred. Result contains NaN values.")
 
     return result
+
+def calculate_magnitude_and_angle(u_grid, v_grid):
+    """
+    Calculate the magnitude and angle of a vector field.
+
+    Input:
+        u_grid (numpy.ndarray): 2D numpy array containing the x-component of the vector field.
+        v_grid (numpy.ndarray): 2D numpy array containing the y-component of the vector field.
+
+    Output:
+        magnitude_grid (numpy.ndarray): 2D numpy array containing the magnitude of the vector field.
+        angle_grid (numpy.ndarray): 2D numpy array containing the angle of the vector field.
+    Usage:
+        magnitude_grid, angle_grid = calculate_magnitude_and_angle(u_grid, v_grid)
+    """
+    try:
+        # Check for NaN values in the input grids
+        if np.isnan(u_grid).any() or np.isnan(v_grid).any():
+            raise ValueError("Input grids contain NaN values.")
+
+        # Calculate magnitude
+        magnitude_grid = np.sqrt(u_grid**2 + v_grid**2)
+
+        # Calculate angle
+        angle_grid = np.arctan2(v_grid, u_grid)
+
+        # Check for NaN values in the results
+        if np.isnan(magnitude_grid).any() or np.isnan(angle_grid).any():
+            raise ValueError("Calculation resulted in NaN values.")
+
+        return magnitude_grid, angle_grid
+
+    except Exception as e:
+        # Handle any other exceptions
+        raise e
