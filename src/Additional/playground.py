@@ -57,15 +57,29 @@ import vector_operations as vo
 # print("\nResult after {}ing the vector to the grid:".format(operation.capitalize()))
 # print(result)
 
-# Create a test for calculating the magnitude and angle of a vector field
+# # Create a test for calculating the magnitude and angle of a vector field
+# # Create a grid
+# grid = np.array([[np.nan, 0], [0, 1]])
+# # Calculate the magnitude and angle of the vector field
+# magnitude_grid, angle_grid = vo.calculate_magnitude_and_angle(grid, grid)
+# print("Magnitude:")
+# print(magnitude_grid)
+# print("\nAngle:")
+# print(angle_grid)
+
+# Create test for filling in NaN values using filter
 # Create a grid
-grid = np.array([[np.nan, 0], [0, 1]])
-# Calculate the magnitude and angle of the vector field
-magnitude_grid, angle_grid = vo.calculate_magnitude_and_angle(grid, grid)
-print("Magnitude:")
-print(magnitude_grid)
-print("\nAngle:")
-print(angle_grid)
+grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
+# Specify the filter method
+methd = 'mean'
+# Fill in NaN values using filter
+result = vo.fill_in_NaN_values_using_filter(grid, methd)
+print("Original Grid:")
+print(grid)
+print("\nResult after filling in NaN values using {} filter:".format(methd))
+print(result)
+
+
 
 
 

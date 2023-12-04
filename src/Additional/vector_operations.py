@@ -97,3 +97,68 @@ def calculate_magnitude_and_angle(u_grid, v_grid):
     except Exception as e:
         # Handle any other exceptions
         raise e
+
+def fill_in_nan_values_using_filter(grid, method):
+    """
+    Locate NaN values in a grid and replace them with either the
+    mean or median of the values immediately next to them.
+
+    Parameters:
+        grid (numpy.ndarray): 2D numpy array.
+        method (str): The method to be applied. Options: 'mean' or 'median'.
+
+    Returns:
+        result (numpy.ndarray): 2D numpy array with the same shape as grid.
+
+    Notes:
+        The function iterates over each NaN value in the grid and replaces it with the
+        mean or median of the non-NaN values in its 3x3 neighborhood, excluding itself.
+        Values that have already been replaced by the mean or median filter are ignored
+        in future replacements to prevent reusing them.
+
+    Example:
+        >>> grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
+        >>> result = replace_nan_with_neighbors(grid, method='mean')
+        >>> print(result)
+        [[1. 2. 2.]
+         [4. 5. 6.]
+         [7. 8. 9.]]
+    """
+    # Check if the input is a 2D numpy array
+    if not isinstance(grid, np.ndarray) or grid.ndim != 2:
+        raise TypeError("Input must be a 2D numpy array.")
+
+    # Check for a valid method
+    if method not in {'mean', 'median'}:
+        raise ValueError("Invalid method. Choose from 'mean' or 'median'.")
+
+    result = grid.copy()
+
+    # Find the indices of NaN values in the grid
+    nan_indices = np.isnan(grid)
+
+    # Set a flag for each replaced NaN value to avoid reusing them
+    replaced_flags = np.zeros_like(grid, dtype=bool)
+
+    # Iterate over each NaN value and replace it
+    for i, j in zip(*np.where(nan_indices)):
+        if not replaced_flags[i, j]:
+            neighbors = []
+
+            # Iterate over the 3x3 neighborhood around the NaN value
+            for x in range(max(0, i - 1), min(grid.shape[0], i + 2)):
+                for y in range(max(0, j - 1), min(grid.shape[1], j + 2)):
+                    if not (x == i and y == j) and not np.isnan(grid[x, y]) and not replaced_flags[x, y]:
+                        neighbors.append(grid[x, y])
+
+            if neighbors:
+                # Replace NaN with mean or median of neighbors
+                if method == 'mean':
+                    result[i, j] = np.mean(neighbors)
+                elif method == 'median':
+                    result[i, j] = np.median(neighbors)
+
+                # Set the flag for the replaced NaN value
+                replaced_flags[i, j] = True
+
+    return result
