@@ -3,17 +3,18 @@ import numpy as np
 import csv
 import os
 import read_and_reshape_csv as rrc
+import vector_operations as vo
 
 # Create a test CSV file with metadata and data
-test_file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/metadata.csv'
-test_metadata = {'Sampling frequency': 3303, 
-                 'Sampling units': 'Hz', 
-                 'Number of samples per column': 1000, 
-                 'Number of columns': 4, 
-                 'Calibration status': True,
-                 'Spatial units': 'mm', 
-                 'Parameter units': 'm/s', 
-                 'Temporal units': 's'}
+# test_file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/metadata.csv'
+# test_metadata = {'Sampling frequency': 3303, 
+#                  'Sampling units': 'Hz', 
+#                  'Number of samples per column': 1000, 
+#                  'Number of columns': 4, 
+#                  'Calibration status': True,
+#                  'Spatial units': 'mm', 
+#                  'Parameter units': 'm/s', 
+#                  'Temporal units': 's'}
 
 # rrc.add_metadata_to_csv(test_file_path, test_metadata)
 
@@ -26,19 +27,36 @@ test_metadata = {'Sampling frequency': 3303,
 # rrc.extract_and_check_consecutive_numbers(directory_path)
 
 # Create a test for reading the CSV file
-test_frame_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/frame_1.csv'
-x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(test_frame_path)
-print(x_positions)
-print(y_positions)
-print(u_velocities)
-print(v_velocities)
+# test_frame_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames/frame_1.csv'
+# x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(test_frame_path)
+# print(x_positions)
+# print(y_positions)
+# print(u_velocities)
+# print(v_velocities)
 
 # Create a test for reshaping the CSV file
-x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
-print(x_grid)
-print(y_grid)
-print(u_grid)
-print(v_grid)
+# x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+# print(x_grid)
+# print(y_grid)
+# print(u_grid)
+# print(v_grid)
+
+# Create a test for operating on a grid
+# Create a grid
+grid = 2 * np.ones((2, 2))
+# Create a vector
+vector = 'invalid' #0 * np.ones((2, 2))
+# Specify the operation
+operation = 'divide'
+# Perform the operation on the grid
+result = vo.operate_on_grid(grid, vector, operation)
+
+print("Original Grid:")
+print(grid)
+print("\nVector:")
+print(vector)
+print("\nResult after {}ing the vector to the grid:".format(operation.capitalize()))
+print(result)
 
 
 

@@ -254,7 +254,8 @@ def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
     >>> y_positions = [4, 4, 4, 5, 5, 5]
     >>> u_velocities = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
     >>> v_velocities = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6]
-    >>> x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+    >>> x_grid, y_grid, u_grid, v_grid = reshape_csv_file(
+                x_positions, y_positions, u_velocities, v_velocities)
     """
     # Check if any of the input arrays are empty
     if len(x_positions) == 0 or len(y_positions) == 0 or len(u_velocities) == 0 or len(v_velocities) == 0:
