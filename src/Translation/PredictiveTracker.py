@@ -5,7 +5,7 @@ import math
 from ParticleFinder import ParticleFinder_MHD
 
 def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
-        noisy,framerange,gifname,correct,yesvels):
+        noisy,framerange,gifname,found,correct,yesvels):
     """
     Set defaults
     """
