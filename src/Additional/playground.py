@@ -69,11 +69,14 @@ import vector_operations as vo
 
 # Create test for filling in NaN values using filter
 # Create a grid
-grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
+# grid = np.array([[np.nan, 2, np.nan], [np.nan, np.nan, 6], [7, 8, 9]])
+# grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
+grid = np.array([[1, np.nan, 3], [4, 5, 6], [7, 8, 9]])
+print(grid.size)
 # Specify the filter method
 methd = 'mean'
 # Fill in NaN values using filter
-result = vo.fill_in_NaN_values_using_filter(grid, methd)
+result = vo.fill_in_nan_values_using_filter(grid, methd)
 print("Original Grid:")
 print(grid)
 print("\nResult after filling in NaN values using {} filter:".format(methd))

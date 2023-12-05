@@ -1,5 +1,9 @@
-import numpy as np
+"""
+Module containing functions for performing operations on vector fields.
+"""
 import warnings
+import numpy as np
+import pdb
 
 def operate_on_grid(grid, vector, operation):
     """
@@ -109,20 +113,30 @@ def fill_in_nan_values_using_filter(grid, method):
 
     Returns:
         result (numpy.ndarray): 2D numpy array with the same shape as grid.
+        replaced_count (int): Number of NaN values successfully replaced.
+        unsuccessful_count (int): Number of NaN values unsuccessfully replaced.
+        total_points (int): Total number of non-NaN points in the grid.
 
     Notes:
         The function iterates over each NaN value in the grid and replaces it with the
         mean or median of the non-NaN values in its 3x3 neighborhood, excluding itself.
         Values that have already been replaced by the mean or median filter are ignored
-        in future replacements to prevent reusing them.
+        in future replacements to prevent reusing them. If more than 3 out of the 9 values
+        used to compute the mean or median are NaN values, the NaN value is not replaced.
 
     Example:
         >>> grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
-        >>> result = replace_nan_with_neighbors(grid, method='mean')
+        >>> result, replaced_count, unsuccessful_count, total_points = fill_in_nan_values_using_filter(grid, method='mean')
         >>> print(result)
-        [[1. 2. 2.]
+        [[1. 2. NaN]
          [4. 5. 6.]
          [7. 8. 9.]]
+        >>> print(replaced_count)
+        1
+        >>> print(unsuccessful_count)
+        1
+        >>> print(total_points)
+        9
     """
     # Check if the input is a 2D numpy array
     if not isinstance(grid, np.ndarray) or grid.ndim != 2:
@@ -140,18 +154,29 @@ def fill_in_nan_values_using_filter(grid, method):
     # Set a flag for each replaced NaN value to avoid reusing them
     replaced_flags = np.zeros_like(grid, dtype=bool)
 
+    # Initialize counters
+    replaced_count = 0
+    unsuccessful_count = 0
+    total_points = grid.size # np.sum(~nan_indices)
+
     # Iterate over each NaN value and replace it
     for i, j in zip(*np.where(nan_indices)):
         if not replaced_flags[i, j]:
             neighbors = []
 
             # Iterate over the 3x3 neighborhood around the NaN value
+            nan_count = 0
             for x in range(max(0, i - 1), min(grid.shape[0], i + 2)):
                 for y in range(max(0, j - 1), min(grid.shape[1], j + 2)):
-                    if not (x == i and y == j) and not np.isnan(grid[x, y]) and not replaced_flags[x, y]:
-                        neighbors.append(grid[x, y])
+                    if not (x == i and y == j):
+                        if np.isnan(grid[x, y]):
+                            nan_count += 1
+                        elif not replaced_flags[x, y]:
+                            neighbors.append(grid[x, y])
 
-            if neighbors:
+            # Replace NaN only if fewer than 4 NaN values in the neighborhood
+            # pdb.set_trace()
+            if len(neighbors) > (len(neighbors) + nan_count) // 2:
                 # Replace NaN with mean or median of neighbors
                 if method == 'mean':
                     result[i, j] = np.mean(neighbors)
@@ -160,5 +185,60 @@ def fill_in_nan_values_using_filter(grid, method):
 
                 # Set the flag for the replaced NaN value
                 replaced_flags[i, j] = True
+                replaced_count += 1
+            else:
+                unsuccessful_count += 1
 
-    return result
+    return result, replaced_count, unsuccessful_count, total_points
+
+def calculate_vorticity(u_grid, v_grid):
+    """
+    Calculate the vorticity of a 2D vector field.
+
+    Parameters:
+        u_grid (numpy.ndarray): 2D numpy array representing the x-component of the vector field.
+        v_grid (numpy.ndarray): 2D numpy array representing the y-component of the vector field.
+
+    Returns:
+        numpy.ndarray: 2D numpy array containing the vorticity of the vector field.
+
+    Raises:
+        TypeError: If either u_grid or v_grid is not a 2D numpy array.
+        ValueError: If u_grid and v_grid do not have the same shape.
+
+    Warns:
+        UserWarning: If either u_grid or v_grid contains NaN values. A warning is issued, and the percentage
+                     of NaN values is displayed.
+
+    Notes:
+        The vorticity is calculated as the difference between the y-component partial derivative of u_grid
+        and the x-component partial derivative of v_grid.
+
+    Example:
+        >>> u_grid = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        >>> v_grid = np.array([[9, 8, 7], [6, 5, 4], [3, 2, 1]])
+        >>> vorticity = calculate_vorticity(u_grid, v_grid)
+    """
+    # Check if inputs are numpy arrays
+    if not isinstance(u_grid, np.ndarray) or not isinstance(v_grid, np.ndarray) or u_grid.ndim != 2 or v_grid.ndim != 2:
+        raise TypeError("Input must be 2D numpy arrays.")
+
+    # Check if inputs have the same shape
+    if u_grid.shape != v_grid.shape:
+        raise ValueError("Input arrays must have the same shape.")
+
+    # Check for NaN values in inputs
+    if np.isnan(u_grid).any() or np.isnan(v_grid).any():
+        nan_percentage = np.sum(np.isnan(u_grid) | np.isnan(v_grid)) / u_grid.size * 100
+        warning_msg = f"UserWarning: Input arrays contain {nan_percentage:.2f}% NaN values. Results may be affected."
+        warnings.warn(warning_msg)
+
+    # Calculate the partial derivatives using central differences
+    du_dx = np.gradient(u_grid, axis=1)
+    dv_dy = np.gradient(v_grid, axis=0)
+
+    # Calculate the vorticity
+    vorticity = dv_dy - du_dx
+
+    return vorticity
+
