@@ -1,6 +1,9 @@
 import cv2 
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+import os
+import glob
 
 from ParticleFinder import ParticleFinder_MHD
 
@@ -48,8 +51,9 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     """
     Find Particles in all frames
     """
+    outputname = []
     if found is None:
-        x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputnames,bground_name,minarea,invert,noisy)
+        x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputname,bground_name,minarea,invert,noisy)
 
         found = {'x':x, 'y':y, 't':t, 'ang':ang}
     
