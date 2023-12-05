@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 from scripy.special import erf
 
-import ParticleFinder_MHD from ParticleFinder
+from ParticleFinder import ParticleFinder_MHD
 
 def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
-                       noisy,framerange,gifname,correct,yesvels)
+        noisy,framerange,gifname,correct,yesvels):
     """
     Set defaults
     """
@@ -37,7 +37,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     if framerange is None:
         framerange = framerange_default
     elif len(framerange) == 1:
-        framerange = framerange*[1 1]
+        framerange = framerange*[1, 1]
     if index is None:
         noisy = index_default
     if found is None:
@@ -93,10 +93,10 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
 
     if minarea == 1:
         for ii in range(nparticles):
-            tracks(ii) = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
+            tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
     else:
         for ii in range(nparticles):
-            tracks(ii) = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
+            tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
 
     """
     Keep track of which tracks are active
@@ -120,8 +120,8 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     """
     for t in range(2, Nf+1): 
 
-    ind = slice(begins[t-1], ends[t-1])
-    time = tt[t-1]
+        ind = slice(begins[t-1], ends[t-1])
+        time = tt[t-1]
 
     if begins[t-1] == 1 and t != 1:
         nfr1 = 0
@@ -131,7 +131,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
 
     if nfr1 == 0:
         print(f"Found no particles in frame {t}")
-        continue
+        
 
     fr1 = np.column_stack((x[ind], y[ind]))
     if minarea != 1:
@@ -146,7 +146,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     for ii in range(n_active):
         tr = tracks[active[ii]-1]
         now[ii, 0] = tr['X'][-1]
-        now(ii,2) = tr['Y'][-1]
+        now[ii,2] = tr['Y'][-1]
         if tr['len'] > 1:
             prior[ii, 1] = tr['X'][-2]
             prior[ii, 2] = tr['Y'][-2]
@@ -225,9 +225,9 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
 
     else:   
 
-    """
-    Prune tracks that are too short
-    """
+        """
+        Prune tracks that are too short
+        """
         print("Pruning...")
         for ii in range(len(tracks)):
             if tracks[ii]['len'] >= (2*fitwidth+1):
@@ -289,7 +289,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
         else:
             im = cv2.imread(names[0]) #????????
 
-        hi = i ax.imshow(im);
+        hi = ax.imshow(im)
         plt.xlim([0.5, im.shape[1]+.5])
         plt.ylim([0.5, im.shape[0]+.5])
 
@@ -314,13 +314,13 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
                 ret, im = video.read()
                 hi.set_array(im)
             
-            elif len(names) == 1 and (ext.lower() =='.tif'  or ext.lower() == '.tiff' or ext.lower() =='.gif':
+            elif len(names) == 1 and ext.lower() =='.tif'  or ext.lower() == '.tiff' or ext.lower() =='.gif':
                 hi.set_array(cv2.imread(names[ii+1]))
             
             else:
                 hi.set_array(cv2.imread(names[ii+1]))
 
-            plt.title(f"{nump} particles in {names[0]} ({ii+1} of {Nf})"
+            plt.title(f"{nump} particles in {names[0]} ({ii+1} of {Nf}")
             plt.draw()
             plt.pause(pausetime)
 
