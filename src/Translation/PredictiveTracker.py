@@ -219,7 +219,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
                 vtracks = tracks[ii]
         ntracks = len(vtracks)
         for ii in range(ntracks):
-            meanlength = np.mean([vtracks[ii]['len'])
+            meanlength = np.mean(vtracks[ii]['len'])
             rmslength = np.sqrt(np.mean(vtracks[ii]['len']**2))
 
 
