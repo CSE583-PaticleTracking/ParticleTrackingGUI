@@ -52,21 +52,21 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     Find Particles in all frames
     """
     outputname = []
-    if found is None:
-        x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputname,bground_name,minarea,invert,noisy)
-
-        found = {'x':x, 'y':y, 't':t, 'ang':ang}
+    x = None
+    y = None
+    t = None
+    ang = None
     
-    else:
-        x = found['x']
-        y = found['y']
-        t = found['t']
-        ang = found['ang']
+    x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputname,bground_name,minarea,invert,noisy)
+    found = {'x':x, 'y':y, 't':t, 'ang':ang}
 
 
-
+    print(x);
+    print(y);
+    print(t);
     tfound=t
-    tt2 = np.arrange(1, max(tfound)+1) 
+
+    tt2 = np.arange(1, max(tfound)+1) 
 
     
     tt, beginsind = np.unique(tfound,return_index = True)

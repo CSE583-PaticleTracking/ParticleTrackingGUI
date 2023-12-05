@@ -67,13 +67,6 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         logs = []
     
 
-     
-    background = np.array(Image.open(bground_name))
-
-    # Convert RGB to grayscale if necessary
-    if len(background.shape) == 3:
-        background = np.round(np.mean(background, axis=2)).astype(np.uint8)
-
     N = 0
     x, y, t = [], [], []
     ang = []
