@@ -33,17 +33,17 @@ class TestOperateOnGridFunction(unittest.TestCase):
         expected_result = np.array([[2, 3], [4, 5]])
         np.testing.assert_array_equal(result, expected_result)
 
-    # def test_divide_vector_with_zeros(self):
-    #     """
-    #     Test that the function raises error if
-    #     divides a vector with zeros.
-    #     """
-    #     grid = np.ones((2, 2))
-    #     vector = np.zeros((2, 2))
-    #     operation = 'divide'
-    #     result = vo.operate_on_grid(grid, vector, operation)
-    #     expected_result = np.full_like(grid, np.nan)
-    #     np.testing.assert_array_equal(result, expected_result)
+    def test_divide_vector_with_zeros(self):
+        """
+        Test that the function raises error if
+        divides a vector with zeros.
+        """
+        grid = np.ones((2, 2))
+        vector = np.zeros((2, 2))
+        operation = 'divide'
+        result = vo.operate_on_grid(grid, vector, operation)
+        expected_result = np.full_like(grid, np.nan)
+        np.testing.assert_array_equal(result, expected_result)
 
     def test_invalid_operation(self):
         """

@@ -58,12 +58,13 @@ def operate_on_grid(grid, vector, operation):
         elif operation == 'multiply':
             result = grid * vector
         elif operation == 'divide':
-            result = grid / vector
+            with np.errstate(divide='ignore'):
+                result = grid / vector
             result[np.isinf(result)] = np.nan
 
     # Issue warning if NaN values are present in the result
-    if np.any(np.isnan(result)):
-        warnings.warn("Division by zero occurred. Result contains NaN values.")
+    # if np.any(np.isnan(result)):
+    #     warnings.warn("Division by zero occurred. Result contains NaN values.")
 
     return result
 
