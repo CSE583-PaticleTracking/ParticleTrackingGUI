@@ -38,8 +38,6 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
         framerange = framerange_default
     elif len(framerange) == 1:
         framerange = framerange*[1, 1]
-    if index is None:
-        noisy = index_default
     if found is None:
         found = found_default
     if correct is None:
