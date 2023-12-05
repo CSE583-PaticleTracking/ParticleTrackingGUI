@@ -92,13 +92,13 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     """
     ind = slice(begins[0], ends[0])
     nparticles = len(ind)
-
+    tracks = []
     if minarea == 1:
         for ii in range(nparticles):
             tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
     else:
         for ii in range(nparticles):
-            tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
+            tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1, 'Theta': ang[ind[ii],:]}
 
     """
     Keep track of which tracks are active
