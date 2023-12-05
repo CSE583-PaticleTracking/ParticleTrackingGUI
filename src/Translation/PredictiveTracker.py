@@ -1,6 +1,6 @@
 import cv2 
 import numpy as np
-from scripy.special import erf
+import math
 
 from ParticleFinder import ParticleFinder_MHD
 
@@ -238,7 +238,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
             rmslength = np.sqrt(np.mean(vtracks[ii]['len']**2))
 
         print('Differentiating...')
-        Av = 1.0 / (0.5 * filterwidth**2 * (np.sqrt(np.pi) * filterwidth * erf(fitwidth / filterwidth) - 2 * fitwidth * np.exp(-fitwidth**2 / filterwidth**2)))
+        Av = 1.0 / (0.5 * filterwidth**2 * (np.sqrt(np.pi) * filterwidth * math.erf(fitwidth / filterwidth) - 2 * fitwidth * np.exp(-fitwidth**2 / filterwidth**2)))
         vkernel = np.arange(-fitwidth, fitwidth)
         vkernel = Av * vkernel * np.exp(-vkernel**2 / filterwidth**2)
     
