@@ -18,7 +18,6 @@ def main():
     build_footer()
 
     ## Define main window elements
-    upload = st.sidebar.button("Upload")
     data_path = st.sidebar.text_input("Data File Path:", None)
     data_path_err = st.sidebar.empty()
     data_extension = None
@@ -42,8 +41,14 @@ def main():
         # find last "." in path and assume this is beginning of file extension
         dot_idx = data_path.rfind('.')
 
-        # if no dot found, assume path is for a directory
-        if dot_idx == -1:
+        # since paths can be relative, convention should be to include / or \
+            # for directory paths (i.e. NOT just leave off dot)
+        # if no dot found, advise user to edit path
+        if dot_idx == -1 or dot_idx < len(data_path) - 3:
+            invalid_path = True
+            data_path_err.text("Check path.\nFile path must include extension.\nDirectory path must end in slash.")
+
+        elif data_path[-1] in ['/', '\\']:
             data_extension = 'dir'
 
             ## TODO: Update graphic based on frame one csv
