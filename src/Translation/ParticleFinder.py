@@ -97,7 +97,6 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         if N > 0:
             x[memloc:memloc + N] = pos[:, 0]
             y[memloc:memloc + N] = pos[:, 1]
-            t[memloc:memloc + N] = tt
             if arealim != 1:
                 ang[memloc:memloc + N] = ang1
             memloc += N
