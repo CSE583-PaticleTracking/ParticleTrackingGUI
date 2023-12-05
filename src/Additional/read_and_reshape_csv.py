@@ -286,3 +286,44 @@ def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
         v_grid[j, i] = v
 
     return x_grid, y_grid, u_grid, v_grid
+
+def convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path):
+    """
+    The function converts a grid to a CSV file. It creates a 
+    folder {folder_name_from_file_path}_processed and saves the CSV file there.
+    Input:
+    - x_grid: A 2D array containing x positions.
+    - y_grid: A 2D array containing y positions.
+    - u_grid: A 2D array containing u velocities.
+    - v_grid: A 2D array containing v velocities.
+    - file_path: The path to the CSV file.
+    Output:
+    - None
+    Example usage:
+    >>> x_grid = np.array([[1, 2, 3], [1, 2, 3]])
+    >>> y_grid = np.array([[4, 4, 4], [5, 5, 5]])
+    >>> u_grid = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
+    >>> v_grid = np.array([[1.1, 1.2, 1.3], [1.4, 1.5, 1.6]])
+    >>> file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
+    >>> convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path)
+    """
+    
+    # Check if the folder exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('The CSV file does not exist.')
+
+    # Check if the grid shapes are compatible
+    if x_grid.shape != y_grid.shape or x_grid.shape != u_grid.shape or x_grid.shape != v_grid.shape:
+        raise ValueError('The grid shapes are not compatible.')
+
+    # Check if the grid shapes are empty
+    if x_grid.size == 0 or y_grid.size == 0 or u_grid.size == 0 or v_grid.size == 0:
+        raise ValueError('The grid shapes are empty.')
+
+    # Check if the grid shapes are 2D
+    if len(x_grid.shape) != 2 or len(y_grid.shape) != 2 or len(u_grid.shape) != 2 or len(v_grid.shape) != 2:
+        raise ValueError('The grid shapes are not 2D.')
+
+    # Check if the grid shapes are not empty
+    if x_grid.size == 0 or y_grid.size == 0 or u_grid.size == 0 or v_grid.size == 0:
+        raise ValueError('The grid shapes are empty.')

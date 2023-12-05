@@ -71,16 +71,16 @@ import vector_operations as vo
 # Create a grid
 # grid = np.array([[np.nan, 2, np.nan], [np.nan, np.nan, 6], [7, 8, 9]])
 # grid = np.array([[1, 2, np.nan], [4, np.nan, 6], [7, 8, 9]])
-grid = np.array([[1, np.nan, 3], [4, 5, 6], [7, 8, 9]])
-print(grid.size)
+# grid = np.array([[1, np.nan, 3], [4, 5, 6], [7, 8, 9]])
+# print(grid.size)
 # Specify the filter method
-methd = 'mean'
+# methd = 'mean'
 # Fill in NaN values using filter
-result = vo.fill_in_nan_values_using_filter(grid, methd)
-print("Original Grid:")
-print(grid)
-print("\nResult after filling in NaN values using {} filter:".format(methd))
-print(result)
+# result = vo.fill_in_nan_values_using_filter(grid, methd)
+# print("Original Grid:")
+# print(grid)
+# print("\nResult after filling in NaN values using {} filter:".format(methd))
+# print(result)
 
 
 
@@ -93,39 +93,46 @@ print(result)
 
 
 
-# def process_csv_folder(folder_path):
-#     """
-#     The function processes all CSV files in a folder and returns a list of reshaped data for each file.
-#     """
-#     # Get a list of all files in the folder
-#     all_files = os.listdir(folder_path)
+def process_csv_folder(folder_path):
+    """
+    The function processes all CSV files in a folder and returns a list of reshaped data for each file.
+    It also performs any additional processing that you want to do on the data.
+    """
+    # Get a list of all files in the folder
+    all_files = os.listdir(folder_path)
 
-#     # Filter out only CSV files
-#     csv_files = [file for file in all_files if file.endswith('.csv')]
+    # Filter out only CSV files
+    csv_files = [file for file in all_files if file.endswith('.csv')]
 
-#     # Initialize empty lists to store reshaped data
-#     reshaped_data_list = []
+    # Initialize empty lists to store reshaped data
+    reshaped_data_list = []
 
-#     # Loop through each CSV file
-#     for csv_file in csv_files:
-#         # Construct the full path to the CSV file
-#         file_path = os.path.join(folder_path, csv_file)
+    # Loop through each CSV file
+    for csv_file in csv_files:
+        # Construct the full path to the CSV file
+        file_path = os.path.join(folder_path, csv_file)
 
-#         # Read CSV file
-#         x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
+        # Read CSV file
+        x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(file_path)
 
-#         # Reshape CSV file
-#         x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+        # Reshape CSV file
+        x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
 
-#         # You can do more processing here
+        # You can do more processing here
+        # Get vector and operation from user
+        operation = 'add'
+        x_vector = 1 * np.ones((x_grid.shape[0], x_grid.shape[1]))
+        y_vector = 0.5 * np.ones((y_grid.shape[0], y_grid.shape[1]))
+        operate_result = vo.operate_on_grid(x_grid, x_vector, operation)
+        operate_result = vo.operate_on_grid(y_grid, y_vector, operation)
 
-#         # Append reshaped data to the list
-#         reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
+        # Append reshaped data to the list
+        reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
 
-#     return reshaped_data_list
+    return reshaped_data_list
 
 # Example usage
-# folder_path = '/path/to/your/csv/files/'
+# folder_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
 # reshaped_data_list = process_csv_folder(folder_path)
 
 # Now, reshaped_data_list contains a list of tuples, each containing the reshaped data from one CSV file
