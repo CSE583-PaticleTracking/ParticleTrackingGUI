@@ -79,19 +79,30 @@ def main():
             # add elements to sidebar
             analysis_type = st.sidebar.radio("Analysis Type:", ("Particle Tracking", "Vector Analysis"))
             if analysis_type == "Particle Tracking":
-                threshold = st.sidebar.slider("Brightness Threshold")
+                threshold = st.sidebar.number_input("Brightness Threshold")
                 max_disp = st.sidebar.number_input("Maximum Displacement")
                 min_area = st.sidebar.number_input("Minimum Displacement")
-                invert = st.sidebar.radio("Invert", ("Bright", "Dark", "Any"))
+                framerate = st.sidebar.slider("Framerate")
+                invert = st.sidebar.radio("Invert", ("Bright", "Dark"))
+
+                ## TODO: Implement submit button
+                # i.e. run other functions from particlepals package here, update inputs as required, and handle output
+                submit = st.sidebar.button("Compute")
             else:
                 # for vector analysis, computation params are gathered from csv files in directory
                 # csv files should follow naming convention, but don't need to check for that here
                 ## TODO: add other inputs for VA
-                process_csv_folder(data_path)
+                operation = st.sidebar.radio("Operation", ('Add', 'Subtract', 'Multiply', 'Divide', 'Mean', 'Median'))
 
-            ## TODO: Implement submit button
+                ## TODO: Implement submit button
                 # i.e. run other functions from particlepals package here, update inputs as required, and handle output
-            submit = st.sidebar.button("Compute")
+                submit = st.sidebar.button("Compute")
+                
+                # try:
+                #         process_csv_folder(data_path, operation)
+                #     # except FileNotFoundError as e:
+                        
+                #     # except ValueError as e:
     else: 
         pass
 
