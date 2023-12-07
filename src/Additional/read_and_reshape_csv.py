@@ -31,9 +31,14 @@ import os
 import csv
 import re
 import pdb
-import pandas as pd
 import warnings
+
+import pandas as pd
+from datetime import datetime
+import pandas as pd
 import numpy as np
+
+import vector_operations as vo
 
 def extract_metadata_from_csv(file_path):
     """
@@ -370,7 +375,7 @@ def process_csv_folder(folder_path, operation=None):
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"The specified folder '{folder_path}' does not exist.")
 
-    numbers = rrc.extract_and_check_consecutive_numbers(folder_path)
+    numbers = extract_and_check_consecutive_numbers(folder_path)
 
     # Create a new folder for processed data
     processed_folder_name = f"{os.path.basename(folder_path)}_processed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -386,9 +391,9 @@ def process_csv_folder(folder_path, operation=None):
         file_path = os.path.join(folder_path, csv_file)
         # original_data = read_and_reshape_csv(file_path)
         # Read CSV file
-        x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(file_path)
+        x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
         # Reshape CSV file
-        x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+        x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
 
         # Perform the specified vector operation
         if operation in {'add', 'subtract', 'multiply', 'divide'}:
@@ -408,18 +413,19 @@ def process_csv_folder(folder_path, operation=None):
             # Save the processed data
             processed_file_path = os.path.join(processed_folder_path, csv_file)
             # processed_data.to_csv(processed_file_path, index=False)
-            rrc.convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
+            convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
 
     if operation is not None:
         # Save metadata CSV file
-        metadata_file_path = os.path.join(processed_folder_path, 'metadata.csv')
-        metadata_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
-                                    'OperationPerformed': [operation]})
-        metadata_df.to_csv(metadata_file_path, index=False)
+        # metadata_file_path = os.path.join(processed_folder_path, 'metadata.csv')
+        # metadata_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+        #                             'OperationPerformed': [operation]})
+        # metadata_df.to_csv(metadata_file_path, index=False)
 
         # Save list of operations performed CSV file
         operations_file_path = os.path.join(processed_folder_path, 'operations_performed.csv')
-        operations_df = pd.DataFrame({'Operation': [operation]})
+        operations_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+                                        'Operation': [operation]})
         operations_df.to_csv(operations_file_path, index=False)
 
         print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
