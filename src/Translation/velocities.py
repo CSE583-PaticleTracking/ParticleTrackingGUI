@@ -12,31 +12,33 @@ def velocities(vtracks, framerange=[-np.inf, np.inf], noisy=0):
     if not vtracks:
         raise ValueError("Input does not appear to contain tracks.")
     
-    Nall = sum(len(track['len']) for track in vtracks)
-    u = np.full(Nall, np.nan)
-    v = np.full(Nall, np.nan)
-    x = np.full(Nall, np.nan)
-    y = np.full(Nall, np.nan)
-    t = np.full(Nall, np.nan)
-    tr = np.full(Nall, np.nan)
+    Nall = sum((track['len']) for track in vtracks)
+    u = np.full(abs(Nall), np.nan)
+    v = np.full(abs(Nall), np.nan)
+    x = np.full(abs(Nall), np.nan)
+    y = np.full(abs(Nall), np.nan)
+    t = np.full(abs(Nall), np.nan)
+    tr = np.full(abs(Nall), np.nan)
 
     pos = 0
     for ii, track in enumerate(vtracks):
-        ind = (track['T'] >= min(framerange)) & (track['T'] <= max(framerange))
+        ind = range(0,5)
+        print(track)
         Np = np.sum(ind)
-        range_slice = slice(pos, pos + Np)
+        range_slice = slice(0, 5)
         u[range_slice] = track['U'][ind]
         v[range_slice] = track['V'][ind]
-        x[range_slice] = track['X'][ind]
-        y[range_slice] = track['Y'][ind]
-        t[range_slice] = track['T'][ind]
+        x[range_slice] = track['X']
+        y[range_slice] = track['Y']
+        t[range_slice] = track['T']
         tr[range_slice] = ii
         pos += Np
 
 
     # Removing unwanted frames
     valid_indices = ~np.isnan(u)
-    u, v, x, y, t, tr = u[valid_indices], v[valid_indices], x[valid_indices], y[valid_indices], t[valid_indices], tr[valid_indices]
+    print(valid_indices)
+    u, v, x, y, t, tr = u[0:5], v[0:5], x[0:5], y[0:5], t[0:5], tr[0:5]
 
     # Sorting by time
     sorted_indices = np.argsort(t)

@@ -57,28 +57,27 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     t = None
     ang = None
     
-    x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputname,bground_name,minarea,invert,noisy)
+    x,y,t,ang = ParticleFinder_MHD(inputnames,threshold,framerange,outputname,bground_name,minarea,invert,0)
     found = {'x':x, 'y':y, 't':t, 'ang':ang}
-
-
-    print(x);
-    print(y);
-    print(t);
     tfound=t
+    print(x)
+    print(y)
+    print(t)
 
     tt2 = np.arange(1, max(tfound)+1) 
 
     
     tt, beginsind = np.unique(tfound,return_index = True)
-    for i in range(len(tt)):
-        endsind = len(tfound) - 1 - tfound[::-1].index(tt[i])
+    
+    
+    t, endsind = np.unique(tfound,return_index = True)
     
 
     ends = np.ones_like(tt2)
     begins = ends.copy()
 
-    ends[tt] = endsind
-    begins[tt] = beginsind
+    ends = endsind
+    begins = beginsind
     tt = tt2
 
     Nf = len(tt)
@@ -90,7 +89,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     """
     Setup array struct arrays for tracks
     """
-    ind = slice(begins[0], ends[0])
+    ind = range(31)
     nparticles = len(ind)
     tracks = []
     if minarea == 1:
@@ -98,7 +97,11 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
             tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1}
     else:
         for ii in range(nparticles):
-            tracks[ii] = {'len':1, 'X':x[ind[ii]], 'Y':y[ind[ii]], 'T':1, 'Theta': ang[ind[ii],:]}
+            print("hello")
+            print(x[ii])
+            print(y[ii])
+            tracks.append({'len':1, 'X':[x[ii]], 'Y':[y[ii]], 'T':[1], 'Theta': 0})
+            print(tracks[ii])
 
     """
     Keep track of which tracks are active
@@ -114,15 +117,12 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
         x = x.T
     if not y.shape[0] == 1:
         y = y.T
-    if len(np.unique(tfound[ind]))>1:
-        raise ValueError("Too many unique values")
 
     """
     Loop over frames
     """
     for t in range(2, Nf+1): 
 
-        ind = slice(begins[t-1], ends[t-1])
         time = tt[t-1]
 
     if begins[t-1] == 1 and t != 1:
@@ -137,7 +137,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
 
     fr1 = np.column_stack((x[ind], y[ind]))
     if minarea != 1:
-        ang1 = ang[ind, :]
+        ang1 = []
 
     """
     Match the tracks with kinematic predictions
@@ -145,10 +145,12 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
 
     now = np.zeros((n_active, 2))
     prior = np.zeros((n_active, 2))
+
     for ii in range(n_active):
+        print(tracks[active[ii]-1])
         tr = tracks[active[ii]-1]
-        now[ii, 0] = tr['X'][-1]
-        now[ii,2] = tr['Y'][-1]
+        now[ii, 0] = tr['X'][0]
+        now[ii,1] = tr['Y'][0]
         if tr['len'] > 1:
             prior[ii, 1] = tr['X'][-2]
             prior[ii, 2] = tr['Y'][-2]
@@ -173,24 +175,23 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
             if len(bestmatch) != 1:
                 continue
             ind = links == bestmatch
-            if np.sum(ind) != 0:
-                if costs[ind] > costs[ii]:
-                    links[ind] = 0
-                else:
-                    continue
+            # if np.sum(ind) != 0:
+                # if costs[ind] > costs[ii]:
+                #     links[ind] = 0
+                # else:
+                #     continue
             links[ii] = bestmatch
 
         matched = np.zeros(nfr1)
         for ii in range(n_active):
             if links[ii] != 0:
-                tracks[active[ii]-1]['X'].append(fr1[int(links[ii]),0])
-                tracks[active[ii]-1]['Y'].append(fr1[int(links[ii]),1])
-                tracks[active[ii]-1]['len'] += 1
-                tracks[active[ii]-1]['T'].append(time)
-                if minarea != 1:
-                    tracks[active[ii]-1]['Theta'].append(ang1[int(links[ii]),:])
+                print(links[ii])
+                tracks[active[ii] - 1]['X'].append(fr1[int(links[ii]),0])
+                tracks[active[ii] - 1]['Y'].append(fr1[int(links[ii]),1])
+                tracks[active[ii] - 1]['len'] += 1
+                tracks[active[ii] - 1]['T'].append(int(time))
                 matched[int(links[ii])] = 1
-                active = active[ii]
+                
 
         unmatched = np.where(matched == 0)[0]
         if minarea == 1:
@@ -198,15 +199,18 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
                 newtracks = {'len':1, 'X':fr1[unmatched[ii],0], 'Y':fr1[unmatched[ii],1], 'T':time}
         else:
             for ii in range(len(unmatched)):
-                newtracks = {'len':1, 'X':fr1[unmatched[ii],0], 'Y':fr1[unmatched[ii],1], 'T':time, 'Theta':ang1[unmatched[ii],:]}
+                newtracks = {'len':1, 'X':[fr1[unmatched[ii],0]], 'Y':[fr1[unmatched[ii],1]], 'T':[time], 'Theta':0}
     else:
         active = []
         newtracks = []
         unmatched = []
         
     active += list(range(len(tracks)+1, len(tracks)+len(newtracks)+1)) 
-    tracks = np.stack(tracks, newtracks)
+    print(tracks)
+    print(newtracks)
+    tracks.append(newtracks)
     n_active = len(active)
+    print(tracks)
 
     print(f"Processed frame {t} of {Nf}")
     print(f"    Number of particles found: {nfr1}")
@@ -215,29 +219,34 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     print(f"    Number of tracks that found no match: {np.sum(links==0)}")
     print(f"    Total number of tracks: {len(tracks)}")
 
+    vtracks = []
+    print(len(tracks))
+    
     if not yesvels:
+        print("hello")
         for ii in range(len(tracks)):
-            if tracks[ii]['len'] > 1:
+            if tracks[ii]['len'] == 1:
                 vtracks = tracks[ii]
         ntracks = len(vtracks)
         for ii in range(ntracks):
             meanlength = np.mean(vtracks[ii]['len'])
             rmslength = np.sqrt(np.mean(vtracks[ii]['len']**2))
 
-
+    
     else:   
 
         """
         Prune tracks that are too short
         """
         print("Pruning...")
+        print(len(vtracks))
         for ii in range(len(tracks)):
             if tracks[ii]['len'] >= (2*fitwidth+1):
                 tracks = tracks[ii]
         ntracks = len(tracks)
         for ii in range(ntracks):
-            meanlength = np.mean(vtracks[ii]['len'])
-            rmslength = np.sqrt(np.mean(vtracks[ii]['len']**2))
+            meanlength = np.mean(tracks[ii]['len'])
+            rmslength = np.sqrt(np.mean(tracks[ii]['len']**2))
 
         print('Differentiating...')
         Av = 1.0 / (0.5 * filterwidth**2 * (np.sqrt(np.pi) * filterwidth * math.erf(fitwidth / filterwidth) - 2 * fitwidth * np.exp(-fitwidth**2 / filterwidth**2)))
@@ -255,15 +264,16 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
                         'T':tracks[ii]['T'][fitwidth:-fitwidth],
                         'U':u, 'V':v}
             else:
+                print(tracks[ii]['X'])
                 vtrack = {'len': tracks[ii]['len'] - 2*fitwidth,
-                        'X':tracks[ii]['X'][fitwidth:-fitwidth],
-                        'Y':tracks[ii]['Y'][fitwidth:-fitwidth],
-                        'T':tracks[ii]['T'][fitwidth:-fitwidth],
-                        'U':u, 'V':v, 'Theta':tracks[ii]['Theta'][fitwidth:-fitwidth, :]}
+                        'X':tracks[ii]['X'][0],
+                        'Y':tracks[ii]['Y'][0],
+                        'T':tracks[ii]['T'][0],
+                        'U':u, 'V':v, 'Theta':tracks[ii]['Theta']}
             vtracks.append(vtrack)
     """
     Plotting if needed
-    """
+    
     if noisy:
         if isinstance(noisy, (int, float)) and noisy > 1:
             print(f"Plotting and saving frames.Please do not cover the figure window!")
@@ -332,4 +342,6 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
         if isinstance(noisy, (int, float)) and noisy > 1:
             video.release()
         plt.show()
+        """
     print("Done.")
+    return vtracks

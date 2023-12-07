@@ -35,9 +35,9 @@ minarea = 2
 invert = 0
 framerange = range(11,20)
 
-vtracks, ntracks, meanlength, rmslength, found = Predictive_tracker(inputname, threshold, max_disp, bground_name, minarea, invert, None, framerange, None, None, None, None)
-
-u,v,x,y,t=velocities(vtracks);
+vtracks = Predictive_tracker(inputname, threshold, max_disp, bground_name, minarea, invert, None, framerange, None, None, None, None)
+print(vtracks)
+u,v,x,y,t, tr=velocities(vtracks, framerange);
 
 if not framerange:
     images2plot = range(int(vid.get(cv2.CAP_PROP_FRAME_COUNT)))  # All frames
