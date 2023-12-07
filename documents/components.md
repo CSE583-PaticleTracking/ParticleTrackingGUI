@@ -1,6 +1,6 @@
-## Components Specifications
-## Name : 
-- GUI
+# Components Specifications
+
+## GUI
 
 ### Overview
 The GUI Component is responsible for creating the user interface that allows users to interact with the application. It provides a visual representation of the software's features and enables users to input data, analyze data, view results, and control the software's functionality.
@@ -25,8 +25,7 @@ The GUI Component is responsible for creating the user interface that allows use
 
 
 
-## Name : 
-- Load Data
+## Load Data
 
 ### Overview
 The Load Data Component is designed to import external data into the software system, making it available for further processing and analysis. It plays a critical role in ensuring that the software has access to up-to-date and relevant data, which is essential for its functionality.
@@ -54,10 +53,9 @@ The Load Data Component is designed to import external data into the software sy
 ### How use other components
 - GUI
 - Particle tracking
-- Vector analysis
+- Vector analysis 
 
-## Name : 
-- Particle tracking
+## Particle tracking
 
 ### Overview
 The Particle Tracking Component is designed to track the movement and characteristics of particles or objects within a specified system. It plays a critical role in analyzing and visualizing particle trajectories, enabling various scientific, industrial, and research applications.
@@ -82,9 +80,38 @@ The Particle Tracking Component may follow various tracking algorithms and data 
 - Load data
 - Export data
 
+## ParticleFinder
 
-## Name : 
-- Vector Field Statistics
+### What it does :
+- Binarizes images 
+- Uses given inputs to identify particles
+- Finds particle centorid positions in an image
+
+### Inputs : 
+- Images
+- A given color threshold
+- Area limit the particles can occupy
+
+### Outputs
+- Found particles and their centroid coordinate in px
+
+## Predictive Tracker
+
+### What is does : 
+- Uses particles centroids in subsequent frames to create tracks
+- Particles are connected with their likely next position in the following frame
+- Tracks are used to define the position of an object through whole video
+
+### Inputs : 
+- Max distance a particle can move between frames
+- Centroid positions
+- Number of Frames
+
+### Outputs : 
+- Particle tracks through a given frame range
+
+
+## Vector Field Statistics
 
 ### Overview
 The Vector Field Statistics Component is designed to compute and analyze statistical properties of vector fields, aiding in the understanding and interpretation of complex data distributions. It is a fundamental tool for a wide range of applications, including fluid dynamics, environmental modeling, and data analysis.
@@ -108,8 +135,7 @@ The Vector Field Statistics Component may follow various statistical algorithms 
 - Load data
 - Export data
 
-## Name : 
-- Export Data
+## Export Data
 
 ### Overview
 The Export Data Component is designed to enable users to export data from the software for external use, analysis, or sharing. It provides a flexible and user-friendly way to extract and save data in various formats and destinations.
