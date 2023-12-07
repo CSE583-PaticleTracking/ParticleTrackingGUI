@@ -54,7 +54,7 @@ The Load Data Component is designed to import external data into the software sy
 ### How use other components
 - GUI
 - Particle tracking
-- Vector analysis
+- Vector analysis 
 
 ## Name : 
 - Particle tracking
@@ -81,6 +81,38 @@ The Particle Tracking Component may follow various tracking algorithms and data 
 - GUI
 - Load data
 - Export data
+
+## Name :
+- Particle Finder
+
+## What it does :
+- Binarizes images 
+- Uses given inputs to identify particles
+- Finds particle centorid positions in an image
+
+## Inputs : 
+- Images
+- A given color threshold
+- Area limit the particles can occupy
+
+## Outputs
+- Found particles and their centroid coordinate in px
+
+## Name : 
+- Predictive Tracker
+
+## What is does : 
+- Uses particles centroids in subsequent frames to create tracks
+- Particles are connected with their likely next position in the following frame
+- Tracks are used to define the position of an object through whole video
+
+## Inputs : 
+- Max distance a particle can move between frames
+- Centroid positions
+- Number of Frames
+
+## Outputs : 
+- Particle tracks through a given frame range
 
 
 ## Name : 
