@@ -1,8 +1,11 @@
 ## streamlit test file 
-
 import numpy as np
 import pandas as pd
 import streamlit as st
+
+# add package parent directory to sys path
+
+from Additional.read_and_reshape_csv import process_csv_folder
 
 ## TODO: add particlepals imports
 # import our package/functions
@@ -17,8 +20,8 @@ def main():
     st.markdown('<p class="small-font">Particle Tracking and Vector Analysis Application</p>', unsafe_allow_html=True)
     build_footer()
 
-    ## Define main window elements
-    data_path = st.sidebar.text_input("Data File Path:", None)
+    # Define sidebar data input
+    data_path = st.sidebar.text_input("Data Path:", None)
     data_path_err = st.sidebar.empty()
     data_extension = None
 
@@ -29,44 +32,46 @@ def main():
     col1, col2 = st.columns((1, 2))
     with col1:
         instructions = st.text("Upload data to get started.")
-
     with col2:
-        image = st.image('./default_graphic.jpg')
+        image = st.image('GUI/default_graphic.jpg')
 
     # update content based on inputs 
-    if (data_path is not None):
+    if data_path is not None:
         invalid_path = False
 
         # get file extension from path string
-        # find last "." in path and assume this is beginning of file extension
-        dot_idx = data_path.rfind('.')
-
-        # since paths can be relative, convention should be to include / or \
-            # for directory paths (i.e. NOT just leave off dot)
-        # if no dot found, advise user to edit path
-        if dot_idx == -1 or dot_idx < len(data_path) - 3:
+        data_extension = get_extension(data_path)
+    
+        # extension can be None, 'dir', or '.{extension}'
+        if data_extension is None:
             invalid_path = True
             data_path_err.text("Check path.\nFile path must include extension.\nDirectory path must end in slash.")
 
-        elif data_path[-1] in ['/', '\\']:
-            data_extension = 'dir'
+        ## TODO: decide whether elif/else are actually necessary...
+        elif data_path == 'dir':
+            pass
+            ## TODO: add implementations for VA vs PT
+                # if PT, select files w/ checkboxes
+                # if VA, pass folder path to process_csv_folder(path)
 
             ## TODO: Update graphic based on frame one csv
         else:
-            data_extension = data_path[dot_idx:]
+            pass
 
             ## TODO: add logic for handling different extensions
 
+            ## TODO: delete this block OR replace with something different
             # update graphic
-            try:
-                f = open(data_path, "rb")
-                image_data = f.read()
-                image.image(image_data)
-            except MediaFileStorageError as e:
-                data_path_err.text("Invalid path!")
-                invalid_path = True
         
-        if not invalid_path:        
+        # try:
+        #     f = open(data_path, "rb")
+        #     image_data = f.read()
+        #     image.image(image_data)
+        # except MediaFileStorageError as e:
+        #     data_path_err.text("Invalid path!")
+        #     invalid_path = True
+            
+        if not invalid_path:
             # update instructions
             instructions.text("Populate input fields and execute computation.")
 
@@ -80,15 +85,15 @@ def main():
                 invert = st.sidebar.radio("Invert", ("Bright", "Dark", "Any"))
             else:
                 # for vector analysis, computation params are gathered from csv files in directory
-                # csv files should follow naming convention:
-                    # dir
-                    # TODO: add specific file names to dictionary, make sure they are all in folder, and then read data from them
-                va_file_names = {}
-                read_vector_analysis_files(data_path, va_file_names)
+                # csv files should follow naming convention, but don't need to check for that here
+                ## TODO: add other inputs for VA
+                process_csv_folder(data_path)
 
             ## TODO: Implement submit button
                 # i.e. run other functions from particlepals package here, update inputs as required, and handle output
             submit = st.sidebar.button("Compute")
+    else: 
+        pass
 
 # threshold: Sets the brightness threshold
 #   for particle identification.
@@ -103,8 +108,72 @@ def main():
 # noisy: Controls the plotting and
 #   visualization options.
 
+
+def get_extension(path):
+    '''
+    Gets file extension from path.
+    Inputs:
+        path: string containing path to file or directory. 
+            Can be absolute or relative. Directory path should
+            end with a slash.
+    Returns:
+        extension: string extension for files or 'dir' for directories.
+    '''
+    # initialize output 
+    extension = None
+
+    # since paths can be relative, convention will be to include / or \
+        # for directory paths (i.e. NOT just leave off dot)
+
+    # find last "." in path .
+    # this is either beginning of extension OR part of relative path
+        # OR may not exist for absolute paths to directories
+    dot_idx = path.rfind('.')
+
+    # path should never end in a dot
+    if not (len(path) > dot_idx):
+        return extension
+
+    # edge case: path is current directory (./) or parent directory (../)
+    # all other relative paths (that make sense) should have 
+        # chars besides . & / after the first slash...
+    # these should be handled if we just check for directory first
+    if path[-1] in ('/', '\\'):
+        extension = 'dir'
+    elif dot_idx != -1 and path[dot_idx + 1] not in ('/', '\\'):
+        extension = path[dot_idx:]
+    else:
+        pass
+
+    return extension
+
+
 def build_footer():
-    footer = """<style>
+    st.markdown("""
+    <div class="footer">
+    <p><a style='display: block; text-align: center;' href="https://github.com/CSE583-PaticleTracking/ParticleTrackingGUI/tree/main" target="_blank">Check out this project on Github</a></p>
+    </div>
+    """
+    ,unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .big-font {
+        font-size:40px;
+    }
+    .small-font {
+        font-size:20px;
+    }
+    .block-container {
+        padding-top: 0px;
+        margin-top: 30px;
+        padding-bottom: 10px;
+    }
+    .st-emotion-cache-16txtl3 {
+        padding-top: 0px;
+        margin-top: 100px;
+        margin-left: 50px;
+    }
+
     a:link , a:visited{
     background-color: transparent;
     color: white;
@@ -125,37 +194,7 @@ def build_footer():
     text-align: center;
     }
     </style>
-    <div class="footer">
-    <p><a style='display: block; text-align: center;' href="https://github.com/CSE583-PaticleTracking/ParticleTrackingGUI/tree/main" target="_blank">Check out this project on Github</a></p>
-    </div>
-    """
-    st.markdown(footer,unsafe_allow_html=True)
-    st.markdown("""
-    <style>
-    .big-font {
-        font-size:40px;
-    }
-    .small-font {
-        font-size:20px;
-    }
-    .block-container {
-        padding-top: 0px;
-        margin-top: 30px;
-        padding-bottom: 10px;
-    }
-    .st-emotion-cache-16txtl3 {
-        padding-top: 0px;
-        margin-top: 100px;
-        margin-left: 50px;
-    }
-    </style>
     """, unsafe_allow_html=True)
-    
-    return footer
-
-
-def read_vector_analysis_files(data_path, va_file_names):
-    pass
 
 
 if __name__ == '__main__':
