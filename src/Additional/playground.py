@@ -2,6 +2,8 @@
 import numpy as np
 import csv
 import os
+from datetime import datetime
+import pandas as pd
 import read_and_reshape_csv as rrc
 import vector_operations as vo
 
@@ -82,54 +84,120 @@ import vector_operations as vo
 # print("\nResult after filling in NaN values using {} filter:".format(methd))
 # print(result)
 
-
-
-
-
-
-
-
-
-
-
-
-def process_csv_folder(folder_path):
+def process_csv_folder(folder_path, operation=None):
     """
-    The function processes all CSV files in a folder and returns a list of reshaped data for each file.
-    It also performs any additional processing that you want to do on the data.
+    The function processes all CSV files in a folder located in the original folder.
+    It loads all the CSV files in the folder using the functions in 
+    'read_and_reshape_csv'. It performs any processing that you want to do on 
+    the data from functions in module 'vector_operations'. The user inputs 
+    which vector operation to be performed.
+    Analyze each frame and plot the processed frame at each step.
+
+    The processed data is saved in a new folder located in the original folder.
+    The name of the new folder is the same as the original folder with the 
+    suffix '_processed_'and the date. The processed data is saved with the same name files. 
+    It attaches a csv file with the metadata of the processed data.
+    It also attaches a csv file with a list of the processes/operations performed on the data.
+
+    Inputs:
+        folder_path (str): Path to the folder containing the CSV files.
+    Outputs:
+        New folder with processed csv files, metadata, and list of operations performed.
+    Examples:
+        process_csv_folder(folder_path)
     """
-    # Get a list of all files in the folder
-    all_files = os.listdir(folder_path)
+    # Check if the input folder exists
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError(f"The specified folder '{folder_path}' does not exist.")
 
-    # Filter out only CSV files
-    csv_files = [file for file in all_files if file.endswith('.csv')]
+    numbers = rrc.extract_and_check_consecutive_numbers(folder_path)
 
-    # Initialize empty lists to store reshaped data
-    reshaped_data_list = []
+    # Create a new folder for processed data
+    processed_folder_name = f"{os.path.basename(folder_path)}_processed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    processed_folder_path = os.path.join(folder_path, processed_folder_name)
+    os.makedirs(processed_folder_path)
 
-    # Loop through each CSV file
+    # Get a list of all CSV files in the input folder
+    csv_files = [file for file in os.listdir(folder_path) if file.lower().endswith('.csv')]
+
+    # Process each CSV file
     for csv_file in csv_files:
-        # Construct the full path to the CSV file
+        # Read and reshape CSV data
         file_path = os.path.join(folder_path, csv_file)
-
+        # original_data = read_and_reshape_csv(file_path)
         # Read CSV file
         x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(file_path)
-
         # Reshape CSV file
         x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
 
-        # You can do more processing here
-        # Get vector and operation from user
-        operation = 'add'
-        x_vector = 1 * np.ones((x_grid.shape[0], x_grid.shape[1]))
-        y_vector = 0.5 * np.ones((y_grid.shape[0], y_grid.shape[1]))
-        operate_result = vo.operate_on_grid(x_grid, x_vector, operation)
-        operate_result = vo.operate_on_grid(y_grid, y_vector, operation)
+        # Perform the specified vector operation
+        if operation in {'add', 'subtract', 'multiply', 'divide'}:
+            u_processed_data = vo.operate_on_grid(u_grid, vector=2, operation=operation)
+            v_processed_data = vo.operate_on_grid(v_grid, vector=2, operation=operation)
+        elif operation in {'mean', 'median'}:
+            u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
+            u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
+        elif operation is None:
+            # If operation is empty, don't process data
+            pass
+            # processed_data = original_data
+        else:
+            raise ValueError(f"Invalid operation '{operation}'. Valid operations are 'add', 'subtract', 'multiply', 'divide', 'mean', and 'median'.")
 
-        # Append reshaped data to the list
-        reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
+        if operation is not None:
+            # Save the processed data
+            processed_file_path = os.path.join(processed_folder_path, csv_file)
+            # processed_data.to_csv(processed_file_path, index=False)
+            rrc.convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
 
-    return reshaped_data_list
+    if operation is not None:
+        # Save metadata CSV file
+        metadata_file_path = os.path.join(processed_folder_path, 'metadata.csv')
+        metadata_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+                                    'OperationPerformed': [operation]})
+        metadata_df.to_csv(metadata_file_path, index=False)
+
+        # Save list of operations performed CSV file
+        operations_file_path = os.path.join(processed_folder_path, 'operations_performed.csv')
+        operations_df = pd.DataFrame({'Operation': [operation]})
+        operations_df.to_csv(operations_file_path, index=False)
+
+        print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
+    
+
+
+    # # Get a list of all files in the folder
+    # all_files = os.listdir(folder_path)
+
+    # # Filter out only CSV files
+    # csv_files = [file for file in all_files if file.endswith('.csv')]
+
+    # # Initialize empty lists to store reshaped data
+    # reshaped_data_list = []
+
+    # # Loop through each CSV file
+    # for csv_file in csv_files:
+    #     # Construct the full path to the CSV file
+    #     file_path = os.path.join(folder_path, csv_file)
+
+    #     # Read CSV file
+    #     x_positions, y_positions, u_velocities, v_velocities = rrc.read_csv_file(file_path)
+
+    #     # Reshape CSV file
+    #     x_grid, y_grid, u_grid, v_grid = rrc.reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+
+    #     # You can do more processing here
+    #     # Get vector and operation from user
+    #     operation = 'add'
+    #     x_vector = 1 * np.ones((x_grid.shape[0], x_grid.shape[1]))
+    #     y_vector = 0.5 * np.ones((y_grid.shape[0], y_grid.shape[1]))
+    #     operate_result = vo.operate_on_grid(x_grid, x_vector, operation)
+    #     operate_result = vo.operate_on_grid(y_grid, y_vector, operation)
+
+    #     # Append reshaped data to the list
+    #     reshaped_data_list.append((x_grid, y_grid, u_grid, v_grid))
+
+    # return reshaped_data_list
 
 # Example usage
 # folder_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
