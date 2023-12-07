@@ -32,7 +32,13 @@ import csv
 import re
 import pdb
 import warnings
+
+import pandas as pd
+from datetime import datetime
+import pandas as pd
 import numpy as np
+
+import vector_operations as vo
 
 def extract_metadata_from_csv(file_path):
     """
@@ -286,3 +292,142 @@ def reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities):
         v_grid[j, i] = v
 
     return x_grid, y_grid, u_grid, v_grid
+
+def convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path):
+    """
+    The function converts a grid to a CSV file and saves the CSV file in file_path.
+    Input:
+    - x_grid: A 2D array containing x positions.
+    - y_grid: A 2D array containing y positions.
+    - u_grid: A 2D array containing u velocities.
+    - v_grid: A 2D array containing v velocities.
+    - file_path: The path to the CSV file.
+    Output:
+    - None
+    Example usage:
+    >>> x_grid = np.array([[1, 2, 3], [1, 2, 3]])
+    >>> y_grid = np.array([[4, 4, 4], [5, 5, 5]])
+    >>> u_grid = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
+    >>> v_grid = np.array([[1.1, 1.2, 1.3], [1.4, 1.5, 1.6]])
+    >>> file_path = '/Users/juliochavez/Desktop/cse583/ParticleTrackingGUI/src/Additional/turbulent_frames'
+    >>> convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path)
+    """
+    
+    # Check if the folder exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('The CSV file does not exist.')
+
+    # Check if the grid shapes are compatible
+    if x_grid.shape != y_grid.shape or x_grid.shape != u_grid.shape or x_grid.shape != v_grid.shape:
+        raise ValueError('The grid shapes are not compatible.')
+
+    # Check if the grid shapes are empty
+    if x_grid.size == 0 or y_grid.size == 0 or u_grid.size == 0 or v_grid.size == 0:
+        raise ValueError('The grid shapes are empty.')
+
+    # Check if the grid shapes are 2D
+    if len(x_grid.shape) != 2 or len(y_grid.shape) != 2 or len(u_grid.shape) != 2 or len(v_grid.shape) != 2:
+        raise ValueError('The grid shapes are not 2D.')
+
+    # Check if the grid shapes are not empty
+    if x_grid.size == 0 or y_grid.size == 0 or u_grid.size == 0 or v_grid.size == 0:
+        raise ValueError('The grid shapes are empty.')
+
+    # Convert x_grid, y_grid, u_grid, v_grid to csv file
+    # Flatten the 2D arrays to 1D arrays
+    x_flat = x_grid.flatten()
+    y_flat = y_grid.flatten()
+    u_flat = u_grid.flatten()
+    v_flat = v_grid.flatten()
+
+    # Create a DataFrame with the flattened data
+    data = {'x': x_flat, 'y': y_flat, 'u': u_flat, 'v': v_flat}
+    df = pd.DataFrame(data)
+
+    # Save the DataFrame to a CSV file
+    df.to_csv(file_path, index=False)
+
+    # print(f"Grid data saved to '{file_path}'.")
+
+def process_csv_folder(folder_path, operation=None):
+    """
+    The function processes all CSV files in a folder located in the original folder.
+    It loads all the CSV files in the folder using the functions in 
+    'read_and_reshape_csv'. It performs any processing that you want to do on 
+    the data from functions in module 'vector_operations'. The user inputs 
+    which vector operation to be performed.
+    Analyze each frame and plot the processed frame at each step.
+
+    The processed data is saved in a new folder located in the original folder.
+    The name of the new folder is the same as the original folder with the 
+    suffix '_processed_'and the date. The processed data is saved with the same name files. 
+    It attaches a csv file with the metadata of the processed data.
+    It also attaches a csv file with a list of the processes/operations performed on the data.
+
+    Inputs:
+        folder_path (str): Path to the folder containing the CSV files.
+    Outputs:
+        New folder with processed csv files, metadata, and list of operations performed.
+    Examples:
+        process_csv_folder(folder_path)
+    """
+    # Check if the input folder exists
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError(f"The specified folder '{folder_path}' does not exist.")
+
+    numbers = extract_and_check_consecutive_numbers(folder_path)
+
+    # Create a new folder for processed data
+    processed_folder_name = f"{os.path.basename(folder_path)}_processed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    processed_folder_path = os.path.join(folder_path, processed_folder_name)
+    os.makedirs(processed_folder_path)
+
+    # Get a list of all CSV files in the input folder
+    csv_files = [file for file in os.listdir(folder_path) if file.lower().endswith('.csv')]
+
+    # Process each CSV file
+    for csv_file in csv_files:
+        # Read and reshape CSV data
+        file_path = os.path.join(folder_path, csv_file)
+        # original_data = read_and_reshape_csv(file_path)
+        # Read CSV file
+        x_positions, y_positions, u_velocities, v_velocities = read_csv_file(file_path)
+        # Reshape CSV file
+        x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+
+        # Perform the specified vector operation
+        if operation in {'add', 'subtract', 'multiply', 'divide'}:
+            u_processed_data = vo.operate_on_grid(u_grid, vector=2, operation=operation)
+            v_processed_data = vo.operate_on_grid(v_grid, vector=2, operation=operation)
+        elif operation in {'mean', 'median'}:
+            u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
+            u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
+        elif operation is None:
+            # If operation is empty, don't process data
+            pass
+            # processed_data = original_data
+        else:
+            raise ValueError(f"Invalid operation '{operation}'. Valid operations are 'add', 'subtract', 'multiply', 'divide', 'mean', and 'median'.")
+
+        if operation is not None:
+            # Save the processed data
+            processed_file_path = os.path.join(processed_folder_path, csv_file)
+            # processed_data.to_csv(processed_file_path, index=False)
+            convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
+
+    if operation is not None:
+        # Save metadata CSV file
+        # metadata_file_path = os.path.join(processed_folder_path, 'metadata.csv')
+        # metadata_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+        #                             'OperationPerformed': [operation]})
+        # metadata_df.to_csv(metadata_file_path, index=False)
+
+        # Save list of operations performed CSV file
+        operations_file_path = os.path.join(processed_folder_path, 'operations_performed.csv')
+        operations_df = pd.DataFrame({'ProcessedDate': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+                                        'Operation': [operation]})
+        operations_df.to_csv(operations_file_path, index=False)
+
+        print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
+
+
