@@ -53,8 +53,13 @@ def main():
     if data_path is not None:
         invalid_path = False
 
-        # get file extension from path string
-        data_extension = get_extension(data_path)
+        try:
+            # get file extension from path string
+            data_extension = get_extension(data_path)
+        except IndexError as e:
+            data_path_err.text("Invalid input." +
+                               f"\nEncountered error: {e}." +
+                               "\nCheck path.")
 
         # extension can be None, 'dir', or '.{extension}'
         if data_extension is None:
@@ -64,22 +69,6 @@ def main():
                                "\nDirectory path must end in slash."
             )
 
-        ## TODO: decide whether elif/else are actually necessary...
-        elif data_path == 'dir':
-            pass
-            ## TODO: add implementations for VA vs PT
-                # if PT, select files w/ checkboxes
-                # if VA, pass folder path to process_csv_folder(path)
-
-            ## TODO: Update graphic based on frame one csv
-        else:
-            pass
-
-            ## TODO: add logic for handling different extensions
-
-            ## TODO: delete this block OR replace with something different
-            # update graphic
-
         ## TODO: update graphic AFTER first radio button (based on analysis/file type)
         # try:
         #     f = open(data_path, "rb")
@@ -88,15 +77,20 @@ def main():
         # except MediaFileStorageError as e:
         #     data_path_err.text("Invalid path!")
         #     invalid_path = True
+        ## TODO: delete block above. leaving for now in case I wnat to reference
         if not invalid_path:
             # update instructions
             instructions.text("Populate input fields and execute computation.")
 
-            ## TODO: update params/format for each input
-            # add elements to sidebar
+            ## add elements to sidebar
+            # set starting index for radio button based on file extension
+            radio_index = 0
+            if data_extension == 'dir':
+                radio_index = 1
             analysis_type = st.sidebar.radio(
-                "Analysis Type:",
-                ("Particle Tracking", "Vector Analysis")
+                label="Analysis Type:",
+                options=("Particle Tracking", "Vector Analysis"),
+                index=radio_index
             )
             if analysis_type == "Particle Tracking":
                 threshold = st.sidebar.number_input("Brightness Threshold")
@@ -115,16 +109,15 @@ def main():
                 ## TODO: add other inputs for VA
                 operation = st.sidebar.radio("Operation",
                                             (
-                                                'Add',
-                                                'Subtract', 
-                                                'Multiply', 
-                                                'Divide', 
-                                                'Mean', 
-                                                'Median'
+                                                'add',
+                                                'subtract', 
+                                                'multiply', 
+                                                'divide', 
+                                                'mean', 
+                                                'median'
                                             )
                 )
 
-                ## TODO: Implement submit button
                 # run other functions from particlepals package here,
                 # update inputs as required, and handle output
                 submit = st.sidebar.button("Compute")
