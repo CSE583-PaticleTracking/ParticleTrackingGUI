@@ -130,12 +130,12 @@ def main():
                 submit = st.sidebar.button("Compute")
 
                 if submit:
-                #     try:
-                    process_csv_folder(data_path, operation)
-                #     except FileNotFoundError as e:
-
-                #     except ValueError as e:
-
+                    try:
+                        process_csv_folder(data_path, operation)
+                    except FileNotFoundError as e:
+                        st.sidebar.text(f"Computation raised error: \n{e}" +
+                                        "\nCheck inputs."
+                                        )
     else:
         pass
 
