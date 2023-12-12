@@ -88,7 +88,6 @@ def main():
         # except MediaFileStorageError as e:
         #     data_path_err.text("Invalid path!")
         #     invalid_path = True
-
         if not invalid_path:
             # update instructions
             instructions.text("Populate input fields and execute computation.")
