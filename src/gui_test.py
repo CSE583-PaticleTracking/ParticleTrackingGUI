@@ -1,6 +1,7 @@
-## streamlit test file 
-import numpy as np
-import pandas as pd
+"""
+streamlit test file
+"""
+
 import streamlit as st
 
 # add package parent directory to sys path
@@ -13,11 +14,24 @@ from Additional.read_and_reshape_csv import process_csv_folder
 ## TODO: check style and run tests
 
 def main():
+    """
+    Main function.
+    Builds GUI using the streamlit package.
+    Once a user fills in inputs fields with the GUI,
+    other particlepals functions are then called from here.
+    Inputs:
+        None
+    Returns:
+        None
+    """
     # set page config
     st.set_page_config(layout="wide")
     MediaFileStorageError = st.runtime.media_file_storage.MediaFileStorageError
     st.markdown('<p class="big-font">Particle Pals</p>', unsafe_allow_html=True)
-    st.markdown('<p class="small-font">Particle Tracking and Vector Analysis Application</p>', unsafe_allow_html=True)
+    st.markdown(
+                '<p class="small-font">Particle Tracking and Vector Analysis Application</p>',
+                unsafe_allow_html=True
+    )
     build_footer()
 
     # Define sidebar data input
@@ -28,24 +42,27 @@ def main():
     # divider between title/description and graphics
     st.divider()
 
-    # define cols for graphic and instructions 
+    # define cols for graphic and instructions
     col1, col2 = st.columns((1, 2))
     with col1:
         instructions = st.text("Upload data to get started.")
     with col2:
         image = st.image('GUI/default_graphic.jpg')
 
-    # update content based on inputs 
+    # update content based on inputs
     if data_path is not None:
         invalid_path = False
 
         # get file extension from path string
         data_extension = get_extension(data_path)
-    
+
         # extension can be None, 'dir', or '.{extension}'
         if data_extension is None:
             invalid_path = True
-            data_path_err.text("Check path.\nFile path must include extension.\nDirectory path must end in slash.")
+            data_path_err.text("Check path." +
+                               "\nFile path must include extension." +
+                               "\nDirectory path must end in slash."
+            )
 
         ## TODO: decide whether elif/else are actually necessary...
         elif data_path == 'dir':
@@ -62,7 +79,8 @@ def main():
 
             ## TODO: delete this block OR replace with something different
             # update graphic
-        
+
+        ## TODO: update graphic AFTER first radio button (based on analysis/file type)
         # try:
         #     f = open(data_path, "rb")
         #     image_data = f.read()
@@ -70,14 +88,17 @@ def main():
         # except MediaFileStorageError as e:
         #     data_path_err.text("Invalid path!")
         #     invalid_path = True
-            
+
         if not invalid_path:
             # update instructions
             instructions.text("Populate input fields and execute computation.")
 
             ## TODO: update params/format for each input
             # add elements to sidebar
-            analysis_type = st.sidebar.radio("Analysis Type:", ("Particle Tracking", "Vector Analysis"))
+            analysis_type = st.sidebar.radio(
+                "Analysis Type:",
+                ("Particle Tracking", "Vector Analysis")
+            )
             if analysis_type == "Particle Tracking":
                 threshold = st.sidebar.number_input("Brightness Threshold")
                 max_disp = st.sidebar.number_input("Maximum Displacement")
@@ -86,24 +107,37 @@ def main():
                 invert = st.sidebar.radio("Invert", ("Bright", "Dark"))
 
                 ## TODO: Implement submit button
-                # i.e. run other functions from particlepals package here, update inputs as required, and handle output
+                # run other functions from particlepals package here,
+                # update inputs as required, and handle output
                 submit = st.sidebar.button("Compute")
             else:
                 # for vector analysis, computation params are gathered from csv files in directory
                 # csv files should follow naming convention, but don't need to check for that here
                 ## TODO: add other inputs for VA
-                operation = st.sidebar.radio("Operation", ('Add', 'Subtract', 'Multiply', 'Divide', 'Mean', 'Median'))
+                operation = st.sidebar.radio("Operation",
+                                            (
+                                                'Add',
+                                                'Subtract', 
+                                                'Multiply', 
+                                                'Divide', 
+                                                'Mean', 
+                                                'Median'
+                                            )
+                )
 
                 ## TODO: Implement submit button
-                # i.e. run other functions from particlepals package here, update inputs as required, and handle output
+                # run other functions from particlepals package here,
+                # update inputs as required, and handle output
                 submit = st.sidebar.button("Compute")
-                
-                # try:
-                #         process_csv_folder(data_path, operation)
-                #     # except FileNotFoundError as e:
-                        
-                #     # except ValueError as e:
-    else: 
+
+                if submit:
+                #     try:
+                    process_csv_folder(data_path, operation)
+                #     except FileNotFoundError as e:
+
+                #     except ValueError as e:
+
+    else:
         pass
 
 # threshold: Sets the brightness threshold
@@ -130,7 +164,7 @@ def get_extension(path):
     Returns:
         extension: string extension for files or 'dir' for directories.
     '''
-    # initialize output 
+    # initialize output
     extension = None
 
     # since paths can be relative, convention will be to include / or \
@@ -142,7 +176,7 @@ def get_extension(path):
     dot_idx = path.rfind('.')
 
     # path should never end in a dot
-    if not (len(path) > dot_idx):
+    if not len(path) > dot_idx:
         return extension
 
     # edge case: path is current directory (./) or parent directory (../)
@@ -160,6 +194,13 @@ def get_extension(path):
 
 
 def build_footer():
+    """
+    Defines footer using unsafe_allow_html=True arg in markdwon element
+    Inputs:
+        None
+    Returns:
+        None
+    """
     st.markdown("""
     <div class="footer">
     <p><a style='display: block; text-align: center;' href="https://github.com/CSE583-PaticleTracking/ParticleTrackingGUI/tree/main" target="_blank">Check out this project on Github</a></p>
@@ -209,4 +250,4 @@ def build_footer():
 
 
 if __name__ == '__main__':
-	main()
+    main()

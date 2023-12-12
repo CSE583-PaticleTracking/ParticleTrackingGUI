@@ -429,5 +429,3 @@ def process_csv_folder(folder_path, operation=None):
         operations_df.to_csv(operations_file_path, index=False)
 
         print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
-
-
