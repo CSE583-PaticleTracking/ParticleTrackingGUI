@@ -45,10 +45,9 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         ret, frame = v.read()
         if frame.dtype == np.uint8:
             color_depth = 2**8
-
         ht, wd, _ = frame.shape
         tmin = max(framerange[0], 1)
-        tmax = min(framerange[1], int(v.get(cv2.CAP_PROP_FRAME_COUNT)))
+        tmax = int(v.get(cv2.CAP_PROP_FRAME_COUNT))
 
     elif len(names) == 1 and ext.lower() in ['.tif', '.tiff', '.gif']:
         movtype = 'stack'
@@ -56,9 +55,11 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         color_depth = 2**im.bits
         ht, wd = im.size
         tmin = max(framerange[0], 1)
-        tmax = min(framerange[1], im.n_frames)
+        tmax = min(framerange[1], int(v.get(cv2.CAP_PROP_FRAME_COUNT)))
 
     Nf = tmax - tmin + 1
+    print(tmax);
+    print(tmin);
 
     if arealim == 1:
         logs = np.log(np.arange(1, color_depth + 1))
@@ -67,13 +68,6 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         logs = []
     
 
-     
-    background = np.array(Image.open(bground_name))
-
-    # Convert RGB to grayscale if necessary
-    if len(background.shape) == 3:
-        background = np.round(np.mean(background, axis=2)).astype(np.uint8)
-
     N = 0
     x, y, t = [], [], []
     ang = []
@@ -81,9 +75,9 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
     memloc = 0
     for ii in range(tmax):  # Loop over frames
         if arealim > 1:
-            pos, ang1 = FindRegions(im, threshold, arealim)
+            pos, ang1 = FindRegions(frame[ii], threshold, arealim)
         else:
-            pos = FindParticles(im, threshold, logs)
+            pos = FindParticles(frame[ii], threshold, logs)
             ang1 = []
 
         N = pos.shape[0]
@@ -97,8 +91,9 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
         if N > 0:
             x[memloc:memloc + N] = pos[:, 0]
             y[memloc:memloc + N] = pos[:, 1]
+            t[memloc:memloc + N] = ii
             if arealim != 1:
-                ang[memloc:memloc + N] = ang1
+                ang= ang1
             memloc += N
 
         if ii % 25 == 0:  # Display progress every 25 frames
@@ -115,11 +110,15 @@ def ParticleFinder_MHD(inputnames, threshold, framerange=None, outputname=None, 
     I = np.argsort(t)
     x, y, t = x[I], y[I], t[I]
     if arealim != 1:
-        ang = ang[I]
+        ang = ang
     else:
         ang = []
 
+    print(x)
+    print(y)
+    print(t)
     print('Done.')
+    return x,y,t,ang
 
 
 def FindParticles(im, threshold, logs):
@@ -187,7 +186,6 @@ def FindRegions(im, threshold, arealim, debug=False):
                                   pos[:, 0] != s[1], pos[:, 1] != s[0], 
                                   props[:, 1] > arealim[0], props[:, 1] < arealim[1]])
 
-    pos = pos[good]
     ang = props[good]
 
     # Debugging visualization (optional)
