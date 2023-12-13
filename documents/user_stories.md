@@ -54,5 +54,10 @@ use GUI.
 
 Mia is a student researcher in biology. Mia has some tracking data from her experiments. She wants to present 
 her data, but she needs to format her data and create good figures. Despite her previous tracking experience, 
-she needs an easy to use interface. As well as a well documented GUI that guides her through uploading her 
-data and creating plots. 
+she needs an easy to use interface. Also, a well documented GUI that guides her through uploading her 
+data and creating plots.
+
+Ethan is a meterologist. Ethan has a csv file containing data for local wind patterns. He wants to analyze 
+the data he has to find mean wind speeds and directions. He needs to use vector analysis on his data set. 
+He has limited vector analysis experience, so he wants an easy to use interface that clearly shows 
+inputs and outputs.
