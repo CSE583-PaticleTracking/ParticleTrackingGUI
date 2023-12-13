@@ -76,7 +76,7 @@ def main():
         else:
             try:
                 data_file = get_file_name(data_path, data_extension)
-                dir_path = data_path[0:data_path.rfind(data_file)]
+                dir_path = get_dir_path(data_path, data_file)
             except (IndexError, ValueError, FileNotFoundError) as e:
                 data_path_err.text("Invalid input." +
                                    f"\nEncountered error: {e}." +
@@ -119,7 +119,7 @@ def main():
                 threshold = st.sidebar.number_input("Brightness Threshold")
                 max_disp = st.sidebar.number_input("Maximum Displacement")
                 min_area = st.sidebar.number_input("Minimum Displacement")
-                framerate = st.sidebar.slider("Framerate")
+                framerange = st.sidebar.slider("Framerange")
                 invert = st.sidebar.radio("Invert", ("Bright", "Dark"))
 
                 ## TODO: Implement submit button
@@ -233,6 +233,36 @@ def get_file_name(path, extension):
     if file_name == '':
         raise ValueError("Could not get file name from path.")
     return file_name
+
+
+def get_dir_path(full_path, file):
+    """
+    Gets absolute path (excluding file name and extension) from full path.
+    Inputs:
+        path: string containing path to file.
+            Can be absolute or relative.
+        file: file name and extension.
+    Returns:
+        dir_path: string absolute path to file's parent directory
+    """
+    file_idx = full_path.rfind(file)
+    dir_path = full_path[0:file_idx]
+    is_relative_path = '.' in dir_path
+    if not is_relative_path:
+        return full_path
+    
+    # replace relative references with absolute
+    cwd = os.getcwd()
+    while is_relative_path:
+        dot_idx = full_path.find('.')
+
+        # check if referencing current directory or parents
+        if full_path[dot_idx+1] == '.':
+            # if referencing parent directory, remove everything
+            # after second-to-last slash in absolute path
+            dir_path = dir
+
+ 
 
 
 def build_footer():
