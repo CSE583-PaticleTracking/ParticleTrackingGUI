@@ -30,10 +30,8 @@ check that the spatial grids values and sizes are consistent across files.
 import os
 import csv
 import re
-import pdb
 import warnings
 
-import pandas as pd
 from datetime import datetime
 import pandas as pd
 import numpy as np
@@ -134,8 +132,7 @@ def extract_and_check_consecutive_numbers(directory):
     """
     # Check if the directory exists
     if not os.path.exists(directory):
-        print(f"The directory '{directory}' does not exist.")
-        return
+        raise FileNotFoundError(f"The directory '{directory}' does not exist.")
 
     # Get a list of all files in the directory
     file_list = os.listdir(directory)
@@ -143,8 +140,7 @@ def extract_and_check_consecutive_numbers(directory):
     # Check if there are CSV files in the directory
     csv_files = [file_name for file_name in file_list if file_name.lower().endswith('.csv')]
     if not csv_files:
-        print(f"No CSV files found in the directory '{directory}'.")
-        return
+        raise FileNotFoundError(f"No CSV files found in the directory '{directory}'.")
 
     # Use a regular expression to extract numbers from file names
     pattern = re.compile(r'frame_(\d+)')
@@ -429,5 +425,3 @@ def process_csv_folder(folder_path, operation=None):
         operations_df.to_csv(operations_file_path, index=False)
 
         print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
-
-
