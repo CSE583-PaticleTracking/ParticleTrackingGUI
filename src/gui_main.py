@@ -1,6 +1,7 @@
 """
 streamlit test file
 """
+import os
 
 import streamlit as st
 
@@ -47,7 +48,7 @@ def main():
     with col1:
         instructions = st.text("Upload data to get started.")
     with col2:
-        image = st.image('GUI/default_graphic.jpg')
+        graphic = st.image('src/GUI/default_graphic.jpg')
 
     # update content based on inputs
     if data_path is not None:
@@ -56,24 +57,46 @@ def main():
         try:
             # get file extension from path string
             data_extension = get_extension(data_path)
-        except IndexError as e:
+        except (IndexError, ValueError) as e:
             data_path_err.text("Invalid input." +
                                f"\nEncountered error: {e}." +
                                "\nCheck path.")
 
         # extension can be None, 'dir', or '.{extension}'
+        # but we will only allow 'dir', '.tif', and '.avi'
         if data_extension is None:
             invalid_path = True
             data_path_err.text("Check path." +
                                "\nFile path must include extension." +
                                "\nDirectory path must end in slash."
             )
+        elif data_extension == 'dir':
+            ## TODO: update graphic for VA based on csv naming convention
+            pass
+        else:
+            try:
+                data_file = get_file_name(data_path, data_extension)
+                dir_path = data_path[0:data_path.rfind(data_file)]
+                dir_fd = os.open(dir_path, os.O_RDONLY)
+            except (IndexError, ValueError, FileNotFoundError) as e:
+                data_path_err.text("Invalid input." +
+                                   f"\nEncountered error: {e}." +
+                                   "\nCheck path.")
+
+            def opener(path, flags):
+                return os.open(path, flags, dir_fd=dir_fd)
+
+            if data_extension == '.tif':
+                with open(data_file, 'rb', opener=opener) as f:
+                    graphic_data = f.read()
+                    graphic.image(graphic_data)
 
         ## TODO: update graphic AFTER first radio button (based on analysis/file type)
+        # no longer matters because we are setting default index on radio button, anyway...
         # try:
         #     f = open(data_path, "rb")
         #     image_data = f.read()
-        #     image.image(image_data)
+        #     graphic.image(image_data)
         # except MediaFileStorageError as e:
         #     data_path_err.text("Invalid path!")
         #     invalid_path = True
@@ -183,6 +206,33 @@ def get_extension(path):
         pass
 
     return extension
+
+
+def get_file_name(path, extension):
+    """
+    Gets file name from full path.
+    Inputs:
+        path: string containing path to file. 
+            Can be absolute or relative.
+    Returns:
+        file_name: string file name including extension
+    """
+    file_name = ''
+
+    # make sure this isn't a directory JIC
+    if extension == 'dir':
+        raise ValueError("Path must include file name and extension.")
+    elif '/' in path:
+        slash_idx = path.rfind('/')
+        file_name = path[slash_idx+1:]
+    elif '\\' in path:
+        slash_idx = path.rfind('\\')
+        file_name = path[slash_idx+1:]
+
+    # if file name hasn't changed, let somebody know
+    if file_name == '':
+        raise ValueError("Could not get file name from path.")
+    return file_name
 
 
 def build_footer():
