@@ -122,7 +122,7 @@ The Vector Field Statistics Component is designed to compute and analyze statist
 ### Design and architecture
 The Vector Field Statistics Component may follow various statistical algorithms and data processing techniques, depending on the specific use case. It is typically modular and extensible to accommodate different statistical analysis methods.
 
-### imputs:
+### inputs:
 - Transformed data.
 
 ### output 
@@ -132,6 +132,57 @@ The Vector Field Statistics Component may follow various statistical algorithms 
 - GUI
 - Load data
 - Export data
+
+## Extract and check consecutive numbers
+### what it does
+Extracts numbers from CSV file names in the given directory and checks if the numbers are consecutive. Checks: if the directory does not exist, if no CSV files are found in the directory, and if no frame numbers are found in the file names. Raises a warning if the extracted numbers are not consecutive or if there are missing numbers.
+
+### Inputs
+- The path to the directory containing CSV files with frame numbers in their names.
+
+ ### Outputs
+ - Frame numbers  
+
+## Read CSV files
+### What it does
+It reads a CSV file and extracts the x and y positions, and u and v velocities. 
+    
+### Input:
+- The path to the CSV file.
+    
+### Output:
+- A 1D array containing x positions.
+- A 1D array containing y positions.
+- A 1D array containing u velocities.
+- A 1D array containing v velocities. 
+
+## Reshape CSV file
+### What it does
+It reshapes the extracted data into a grid for further processing in Python.
+    
+### Input:
+- A 1D array containing x positions.
+- A 1D array containing y positions.
+- A 1D array containing u velocities.
+- A 1D array containing v velocities.
+    
+### Output:
+- A 2D array containing x positions.
+- A 2D array containing y positions.
+- A 2D array containing u velocities.
+- A 2D array containing v velocities. 
+
+## Process CSV files in folder
+### What it does
+It processes all CSV files in a folder located in the original folder. It performs any processing that you want to do on the data. The user inputs which vector operation to be performed. Analyze each frame and plot the processed frame at each step.
+
+The processed data is saved in a new folder located in the original folder. The name of the new folder is the same as the original folder with the suffix '_processed_'and the date. The processed data is saved with the same name files. It attaches a csv file with the metadata of the processed data. It also attaches a csv file with a list of the processes/operations performed on the data.
+
+### Inputs:
+- Path to the folder containing the CSV files.
+    
+### Outputs:
+- New folder with processed csv files, metadata, and list of operations performed.
 
 ## Export Data
 
