@@ -247,7 +247,37 @@ This function visualizes the movement of tracked objects in a video file. It tak
 ### Outputs
 - This function does not return any values but visualizes the tracks directly on the video frames. It displays each frame with the plotted tracks and pauses briefly between frames to create a visual tracking effect.
 
+## FindRegions
+### What it does
+Given an image "im", FindRegions finds regions that are brighter than
+"thresold" and have area larger than "arealim". Region centroids are
+returned in the two-column array "pos" (with x-coordinates in the first
+column and y-coordinates in the second). Region orientations are
+returned in radians, in the vector "ang".
 
+### Inputs
+- Image
+- Threshold for finding particles
+- Size of particle in pixels
+- Variable for debugging
 
-        
+### Outputs
+- Position and angle of the particle
 
+## FindRegions
+### What it does
+Given an image "im", FindParticles finds small particles that are
+brighter than their four nearest neighbors and also brighter than
+"threshold". Particles are located to sub-pixel accuracy by applying a
+Gaussian fit in each spatial direction. The input "logs" depends on
+the color depth and is re-used for speed. Particle locations are
+returned in the two-column array "pos" (with x-coordinates in the first
+column and y-coordinates in the second).
+
+### Inputs
+- Image
+- threshold for finding particles
+- color depth
+
+### Outputs
+- position of the particle
