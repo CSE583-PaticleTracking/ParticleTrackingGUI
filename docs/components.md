@@ -184,17 +184,19 @@ The function iterates over each NaN value in the grid and replaces it with the m
 - Number of NaN values unsuccessfully replaced.
 - Total number of non-NaN points in the grid.
 
-## Vorticity
+## PlotTracks
 ### What it does
-Calculate the vorticity of a 2D vector field. The vorticity is calculated as the difference between the y-component partial derivative of u velocity component grid and the x-component partial derivative of v component of velocity grid.
+This function visualizes the movement of tracked objects in a video file. It takes a video file as input, along with tracking data for various objects. The function reads the video frame by frame and plots the tracks of the objects over the video frames. It highlights the paths of these objects in different colors, allowing you to visually track their movement across frames.
 
 ### Inputs
-- spatial and velocity grid.
+- inputname: Path to the video file.
+- vtracks: A list of dictionaries, where each dictionary contains tracking information of an object. This includes the frame number ('T') and the x ('X') and y ('Y') coordinates of the object in each frame.
+- framerange (optional): A list of two elements specifying the range of frames to plot. Default is the entire video.
 
 ### Outputs
-- Array containing the vorticity of the vector field.
+- This function does not return any values but visualizes the tracks directly on the video frames. It displays each frame with the plotted tracks and pauses briefly between frames to create a visual tracking effect.
 
-        
+
 
         
 
