@@ -97,7 +97,7 @@ The Particle Tracking Component may follow various tracking algorithms and data 
 
 ## Predictive Tracker
 
-### What is does : 
+### What it does : 
 - Uses particles centroids in subsequent frames to create tracks
 - Particles are connected with their likely next position in the following frame
 - Tracks are used to define the position of an object through whole video
@@ -155,3 +155,8 @@ The Export Data Component is designed to enable users to export data from the so
 - Particle Tracking
 - Vector Analysis
 - Export data
+
+### Operate on grid
+### What it does
+- 
+
