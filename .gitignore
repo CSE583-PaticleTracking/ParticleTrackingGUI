@@ -1,11 +1,7 @@
 # Files
-*.csv
-*.tif
-*.tiff
 *.jpeg
 *.jpg
 *.gif
-*.avi
 *.mov
 *.Identifier
 
