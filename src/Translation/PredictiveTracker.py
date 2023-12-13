@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import glob
 
-from ParticleFinder import ParticleFinder_MHD
+from Translation.ParticleFinder import ParticleFinder_MHD
 
 def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
         noisy,framerange,gifname,found,correct,yesvels):

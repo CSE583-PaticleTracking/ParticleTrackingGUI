@@ -3,11 +3,13 @@ streamlit test file
 """
 import os
 
+import numpy as np
 import streamlit as st
 
 # add package parent directory to sys path
 
 from Additional.read_and_reshape_csv import process_csv_folder
+from Translation.PredictiveTracker import Predictive_tracker
 
 def main():
     """
@@ -22,7 +24,7 @@ def main():
     """
     # set page config
     st.set_page_config(layout="wide")
-    MediaFileStorageError = st.runtime.media_file_storage.MediaFileStorageError
+    # MediaFileStorageError = st.runtime.media_file_storage.MediaFileStorageError
     st.markdown('<p class="big-font">Particle Pals</p>', unsafe_allow_html=True)
     st.markdown(
                 '<p class="small-font">Particle Tracking and Vector Analysis Application</p>',
@@ -87,21 +89,12 @@ def main():
             #     return os.open(path, flags, dir_fd=dir_fd)
             
             if data_extension == '.tif':
+                data_path = 'src\\' + data_file
                 # with open(data_file, 'rb', opener=opener) as f:
-                with open(data_file, 'rb') as f:
+                with open(data_path, 'rb') as f:
                     graphic_data = f.read()
                     graphic.image(graphic_data)
 
-        ## TODO: update graphic AFTER first radio button (based on analysis/file type)
-        # no longer matters because we are setting default index on radio button, anyway...
-        # try:
-        #     f = open(data_path, "rb")
-        #     image_data = f.read()
-        #     graphic.image(image_data)
-        # except MediaFileStorageError as e:
-        #     data_path_err.text("Invalid path!")
-        #     invalid_path = True
-        ## TODO: delete block above. leaving for now in case I wnat to reference
         if not invalid_path:
             # update instructions
             instructions.text("Populate input fields and execute computation.")
@@ -120,17 +113,44 @@ def main():
                 threshold = st.sidebar.number_input("Brightness Threshold")
                 max_disp = st.sidebar.number_input("Maximum Displacement")
                 min_area = st.sidebar.number_input("Minimum Displacement")
-                framerange = st.sidebar.slider("Framerange")
+                startframe = st.sidebar.number_input("Start Frame", step=1)
+                endframe = st.sidebar.number_input("End Frame", step=1, min_value=startframe+1)
+                # framerange = st.sidebar.slider("Framerange")
                 invert = st.sidebar.radio("Invert", ("Bright", "Dark"))
 
-                ## TODO: Implement submit button
-                # run other functions from particlepals package here,
-                # update inputs as required, and handle output
+                framerange = np.arange(startframe, endframe)
+
+                match invert:
+                    case "Bright":
+                        invert = 0
+                    case "Dark":
+                        invert = 1
+
                 submit = st.sidebar.button("Compute")
+
+                if submit:
+                    try:
+                        Predictive_tracker(
+                            inputnames=data_file,
+                            threshold=threshold,
+                            max_disp=max_disp,
+                            minarea=min_area,
+                            invert=invert,
+                            framerange=framerange,
+                            bground_name=None,
+                            noisy=None,
+                            gifname=None,
+                            found=None,
+                            correct=None,
+                            yesvels=None
+                        )
+                    except FileNotFoundError as e:
+                        st.sidebar.text(f"Computation raised error: \n{e}" +
+                                        "\nCheck inputs."
+                                        )
             else:
                 # for vector analysis, computation params are gathered from csv files in directory
                 # csv files should follow naming convention, but don't need to check for that here
-                ## TODO: add other inputs for VA
                 operation = st.sidebar.radio("Operation",
                                             (
                                                 'add',
