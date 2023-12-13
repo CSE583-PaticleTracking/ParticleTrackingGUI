@@ -1,4 +1,8 @@
 # Files
+*.jpeg
+*.jpg
+*.gif
+*.mov
 *.Identifier
 
 # MacOS files
