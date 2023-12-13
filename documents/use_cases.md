@@ -1,14 +1,13 @@
 ## Use Cases
 
 - Tracking (Main use case)
-- Define initial parameters for tracking and define parameters for statistics
-- Import data with an appropriate data type (jpeg, csv) to the code
+- Display interactive visualizations and reports (GUI)
+- Import data with an appropriate data type (avi, csv) to the code
     - Convert each data type to a specific data structure
-    - Our algorithm will work on that particular algorithm
 - Statistic Anaylsis (User has done their own tracking and wants to do some anaysis on that data)
 - Export data to the user
+    - Export data to Excel or csv for further analysis
 - Enable users to search and filter data in the software
-- Display interactive visualizations and reports
 - Analyze the behavior of nanoparticles in a laboratory experiment
 - Monitor the movement of cells in a biological study
 - Track the motion of vehicles or pedestrians in a traffic simulation
@@ -18,5 +17,4 @@
 - Evaluate vector field data in scientific simulations
 - Identify objects throughout a video
 - Visualize and exploring complex data distributions in data analysis
-- Export data to Excel or csv for further analysis
 - Generating figures for presentations or publishing
