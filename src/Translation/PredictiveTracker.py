@@ -10,8 +10,64 @@ from ParticleFinder import ParticleFinder_MHD
 def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
         noisy,framerange,gifname,found,correct,yesvels):
     """
-    Set defaults
-    """
+    Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
+        noisy,framerange,gifname,found,correct,yesvels)
+        Predictive_tracker is a function that tracks particles in a video. 
+        Given a movie of particle motions, PredictiveTracker produces Lagrangian 
+        particle tracks using a predictive three-frame best-estimate algorithm. 
+        The movie must be saved as a series of image files, an image stack in 
+        .tif or .gif format, or an uncompressed .avi file; specify the movie in 
+        "inputnames" (e.g., '0*.png' or 'stack.tif', or 'movie.avi'). To be 
+        identified as a particle, a part of the image must have brightness that 
+        differs from the background by at least "threshold". If invert==0, 
+        PredictiveTracker seeks particles brighter than the background; if 
+        invert==1, PredictiveTracker seeks particles darker than the background; 
+        and if invert==-1, PredictiveTracker seeks any sort of contrast. The 
+        background is read from the file "bground_name"; see BackgroundImage. If 
+        minarea==1, PredictiveTracker seeks single-pixel particles by comparing 
+        brightness to adjacent pixels (fast and good for small particles); 
+        otherwise PredictiveTracker seeks particles having areas larger than 
+        "minarea" (in square pixels; this method is better for tracking large 
+        particles). Once identified, each particle is tracked using a kinematic 
+        prediction, and a track is broken when no particle lies within "max_disp" 
+        pixels of the predicted location. The results are returned in the 
+        structure "vtracks", whose fields "len", "X", "Y", "T", "U", and "V" 
+        contain the length, horizontal coordinates, vertical coordinates, times, 
+        horizontal velocities, and vertical velocities of each track, 
+        respectively. If minarea~=1, "vtracks" is returned with an additonal 
+        field, "Theta", giving the orientation of the major axis of the particle 
+        with respect to the x-axis, in radians. The total number of tracks is 
+        returned as "ntracks"; the mean and root-mean-square track lengths are 
+        returned in "meanlength" and "rmslength", respectively. If noisy~=0, the 
+        movie is repeated with overlaid velocity quivers and the tracks are 
+        plotted. If noisy==2, each movie frame is also saved to disk as an image. 
+        Requires ParticleFinder.m; also requires read_uncompressed_avi.m for use 
+        with .avi movies. This file can be downloaded from 
+        http://leviathan.eng.yale.edu/software.
+        
+        Inputs:
+            inputnames - name of the video file to be tracked
+            threshold - threshold for finding particles
+            max_disp - maximum displacement of particles between frames
+            bground_name - name of the background image
+            minarea - minimum area of particles
+            invert - invert the image
+            noisy - plot the tracks
+            framerange - range of frames to be tracked
+            gifname - name of the gif file
+            found - dictionary of found particles
+            correct - dictionary of correct particles
+            yesvels - calculate velocities
+        Outputs:
+            vtracks - dictionary of tracks
+        Examples:
+            vtracks = Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert,
+            noisy,framerange,gifname,found,correct,yesvels)
+        Dependencies:
+            ParticleFinder_MHD
+            """
+
+    # Set defaults
     bground_name_default = 'background.tif'
     noisy_default = 0
     minarea_default = 1
@@ -25,10 +81,8 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     index_default = []
     found_default = []
 
-    """
-    Parse Inputs
-    """
 
+    # Parse Inputs
     if bground_name is None:
         bground_name = bground_name_default
     if minarea is None:
@@ -48,9 +102,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     if yesvels is None:
         yesvels = 1
 
-    """
-    Find Particles in all frames
-    """
+    # Find Particles in all frames
     outputname = []
     x = None
     y = None
@@ -85,10 +137,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     if Nf < (2*fitwidth+1): 
         raise ValueError(f"Sorry, found too few files named: {inputnames}")
 
-
-    """
-    Setup array struct arrays for tracks
-    """
+    # Setup array struct arrays for tracks
     ind = range(31)
     nparticles = len(ind)
     tracks = []
@@ -103,9 +152,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
             tracks.append({'len':1, 'X':[x[ii]], 'Y':[y[ii]], 'T':[1], 'Theta': 0})
             print(tracks[ii])
 
-    """
-    Keep track of which tracks are active
-    """
+    # Keep track of which tracks are active
     active = list(range(1, nparticles+1)) 
     n_active = len(active)
     print(f"Processed frame 1 of {Nf}")
@@ -118,9 +165,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     if not y.shape[0] == 1:
         y = y.T
 
-    """
-    Loop over frames
-    """
+    # Loop over frames
     for t in range(2, Nf+1): 
 
         time = tt[t-1]
@@ -139,10 +184,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     if minarea != 1:
         ang1 = []
 
-    """
-    Match the tracks with kinematic predictions
-    """
-
+    # Match the tracks with kinematic predictions
     now = np.zeros((n_active, 2))
     prior = np.zeros((n_active, 2))
 
@@ -235,9 +277,7 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
     
     else:   
 
-        """
-        Prune tracks that are too short
-        """
+        # Prune tracks that are too short
         print("Pruning...")
         print(len(vtracks))
         for ii in range(len(tracks)):
@@ -271,77 +311,77 @@ def Predictive_tracker(inputnames,threshold,max_disp,bground_name,minarea,invert
                         'T':tracks[ii]['T'][0],
                         'U':u, 'V':v, 'Theta':tracks[ii]['Theta']}
             vtracks.append(vtrack)
-    """
-    Plotting if needed
-    
-    if noisy:
-        if isinstance(noisy, (int, float)) and noisy > 1:
-            print(f"Plotting and saving frames.Please do not cover the figure window!")
-            if not os.path.exists(savedirname):
-                os.mkdir(savedirname)
-        else:
-            print("Plotting...")
-    
-        defaultpos = (0, 0)
-        fig = plt.figure(figsize = figsize)
-        ax = fig.add_axes([0, 0, 1, 1])
-        ax.set_aspect('equal', 'box')
-        plt.title(f"{ntracks} particle tracks: mean length {meanlength} frames, rms length {rmslength} frames")
-        plt.xlabel(f"{inputnames}, threshold = {threshold}, max_disp = {max_disp}, {bground_name}, minarea = {minarea}, invert = {invert}")
-        filepath, _, ext = os.path.splitext(inputnames)
 
-        names = glob.glob(inputnames)
+    # Plotting if needed
     
-        if ext.lower() == '.avi':
-            video = cv2.VideoCapture(names[0])
-            ret, im = video.read()
-        
-        elif len(names) == 1 and ext.lower() == '.tif' or ext.lower() == '.tiff' or ext.lower() =='.gif':
-            im = cv2.imread(names[0])
-        else:
-            im = cv2.imread(names[0]) #????????
-
-        hi = ax.imshow(im)
-        plt.xlim([0.5, im.shape[1]+.5])
-        plt.ylim([0.5, im.shape[0]+.5])
-
-        plt.set_cmap('gray')
-        colorlist = ax.get_prop_cycle()
-        Ncolors = len(colorlist)
-        for vtrack in vtracks:
-            framerange = np.array([vtrack['T'][0], vtrack['T'][-1]])
+    # if noisy:
+    #     if isinstance(noisy, (int, float)) and noisy > 1:
+    #         print(f"Plotting and saving frames.Please do not cover the figure window!")
+    #         if not os.path.exists(savedirname):
+    #             os.mkdir(savedirname)
+    #     else:
+    #         print("Plotting...")
     
-        for ii in range(0, Nf-fitwidth, 2):
-            nump = 0
-            ax.lines = []
-            ind = np.where((framerange[:,0] <= ii+1) & (framerange[:, 1] >= ii+1))[0] 
+    #     defaultpos = (0, 0)
+    #     fig = plt.figure(figsize = figsize)
+    #     ax = fig.add_axes([0, 0, 1, 1])
+    #     ax.set_aspect('equal', 'box')
+    #     plt.title(f"{ntracks} particle tracks: mean length {meanlength} frames, rms length {rmslength} frames")
+    #     plt.xlabel(f"{inputnames}, threshold = {threshold}, max_disp = {max_disp}, {bground_name}, minarea = {minarea}, invert = {invert}")
+    #     filepath, _, ext = os.path.splitext(inputnames)
+
+    #     names = glob.glob(inputnames)
+    
+    #     if ext.lower() == '.avi':
+    #         video = cv2.VideoCapture(names[0])
+    #         ret, im = video.read()
         
-            for jj in ind:
-                col = colorlist[jj % Ncolors]['color']
-                indt = slice(None, ii - int(framerange[jj, 0]) +1) #says to add a +1
-                ax.plot(vtracks[jj]['X'][indt], vtracks[jj]['Y'][indt], '-', color = col)
-                nump += 1
+    #     elif len(names) == 1 and ext.lower() == '.tif' or ext.lower() == '.tiff' or ext.lower() =='.gif':
+    #         im = cv2.imread(names[0])
+    #     else:
+    #         im = cv2.imread(names[0]) #????????
+
+    #     hi = ax.imshow(im)
+    #     plt.xlim([0.5, im.shape[1]+.5])
+    #     plt.ylim([0.5, im.shape[0]+.5])
+
+    #     plt.set_cmap('gray')
+    #     colorlist = ax.get_prop_cycle()
+    #     Ncolors = len(colorlist)
+    #     for vtrack in vtracks:
+    #         framerange = np.array([vtrack['T'][0], vtrack['T'][-1]])
+    
+    #     for ii in range(0, Nf-fitwidth, 2):
+    #         nump = 0
+    #         ax.lines = []
+    #         ind = np.where((framerange[:,0] <= ii+1) & (framerange[:, 1] >= ii+1))[0] 
         
-            if ext.lower() == '.avi':
-                ret, im = video.read()
-                hi.set_array(im)
+    #         for jj in ind:
+    #             col = colorlist[jj % Ncolors]['color']
+    #             indt = slice(None, ii - int(framerange[jj, 0]) +1) #says to add a +1
+    #             ax.plot(vtracks[jj]['X'][indt], vtracks[jj]['Y'][indt], '-', color = col)
+    #             nump += 1
+        
+    #         if ext.lower() == '.avi':
+    #             ret, im = video.read()
+    #             hi.set_array(im)
             
-            elif len(names) == 1 and ext.lower() =='.tif'  or ext.lower() == '.tiff' or ext.lower() =='.gif':
-                hi.set_array(cv2.imread(names[ii+1]))
+    #         elif len(names) == 1 and ext.lower() =='.tif'  or ext.lower() == '.tiff' or ext.lower() =='.gif':
+    #             hi.set_array(cv2.imread(names[ii+1]))
             
-            else:
-                hi.set_array(cv2.imread(names[ii+1]))
+    #         else:
+    #             hi.set_array(cv2.imread(names[ii+1]))
 
-            plt.title(f"{nump} particles in {names[0]} ({ii+1} of {Nf}")
-            plt.draw()
-            plt.pause(pausetime)
+    #         plt.title(f"{nump} particles in {names[0]} ({ii+1} of {Nf}")
+    #         plt.draw()
+    #         plt.pause(pausetime)
 
-            if isinstance(noisy, (int, float)) and noisy > 1:
-                frame = plt.gca().get_frame()
-                plt.savefig(os.path.join(filepath, savedirname, f"{names[ii +1]}"))
-        if isinstance(noisy, (int, float)) and noisy > 1:
-            video.release()
-        plt.show()
-        """
+    #         if isinstance(noisy, (int, float)) and noisy > 1:
+    #             frame = plt.gca().get_frame()
+    #             plt.savefig(os.path.join(filepath, savedirname, f"{names[ii +1]}"))
+    #     if isinstance(noisy, (int, float)) and noisy > 1:
+    #         video.release()
+    #     plt.show()
+
     print("Done.")
     return vtracks
