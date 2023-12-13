@@ -1,5 +1,10 @@
 # ParticleTrackingGUI
 
+### Version
+ParticleTrackingGUI 1.0
+- Functioning GUI with vector analysis
+- Translated particle tracker to python
+
 ### Project Goals
 Create a Python GUI for tracking particle trajectories from images. After tracking, the user can 
 export desired data and statistics. This GUI can be used for both personal/research purposes.
