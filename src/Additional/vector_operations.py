@@ -1,5 +1,19 @@
 """
-Module containing functions for performing operations on vector fields.
+Module containing functions for performing operations on vector fields. 
+Components:
+    * operate_on_grid - performs addition, subtraction, multiplication, or division of a vector on a grid.
+    * calculate_magnitude_and_angle - calculates the magnitude and angle of a vector field.
+    * fill_in_nan_values_using_filter - replaces NaN values in a grid with the mean or median of the values around them.
+    * calculate_vorticity - calculates the vorticity of a 2D vector field.
+Examples:
+    # Perform addition of a vector on a grid
+    result = vo.operate_on_grid(grid, vector, 'add')
+    # Calculate the magnitude and angle of a vector field
+    magnitude_grid, angle_grid = vo.calculate_magnitude_and_angle(u_grid, v_grid)
+    # Fill in NaN values using filter
+    result, replaced_count, unsuccessful_count, total_points = vo.fill_in_nan_values_using_filter(grid, 'mean')
+    # Calculate the vorticity of a 2D vector field
+    vorticity = vo.calculate_vorticity(u_grid, v_grid)
 """
 import warnings
 import numpy as np

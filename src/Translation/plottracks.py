@@ -15,14 +15,18 @@ def plot_tracks_avi(inputname, vtracks, framerange=None):
     ntracks = len(vtracks)
     track_frame_range = np.full((ntracks, 2), np.nan)
 
+    print(ntracks)
+    print(vtracks)
     for jj in range(ntracks):
-        track_frame_range[jj, 0] = vtracks[jj]['T'][0]
-        track_frame_range[jj, 1] = vtracks[jj]['T'][-1]
+        track_frame_range[jj, 0] = vtracks[jj]['T']
+        track_frame_range[jj, 1] = vtracks[jj]['T']
 
     first_track = np.nanmin(track_frame_range)
     last_track = np.nanmax(track_frame_range)
-
-    for i in range(framerange[0], framerange[1] + 1):
+    print(framerange[0])
+    print(framerange[1] + 1)
+    print(last_track)
+    for i in range(int(first_track), int(last_track)):
         if i < first_track or i > last_track:
             continue
 
@@ -40,9 +44,9 @@ def plot_tracks_avi(inputname, vtracks, framerange=None):
             if track_frame_range[jj, 0] <= i <= track_frame_range[jj, 1]:
                 col = colorlist[jj % len(colorlist)]
                 indt = slice(0, i - int(track_frame_range[jj, 0]) + 1)
-                plt.plot(vtracks[jj]['X'][indt], vtracks[jj]['Y'][indt], '-', color=col)
+                plt.plot(vtracks[jj]['X'], vtracks[jj]['Y'], '-', color=col)
 
-        plt.pause(0.05)
+        plt.pause(0.5)
         plt.clf()
 
     vid.release()
