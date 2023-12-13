@@ -4,11 +4,12 @@ streamlit test file
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 import streamlit as st
 
 # add package parent directory to sys path
 
-from Additional.read_and_reshape_csv import process_csv_folder
+from Additional.read_and_reshape_csv import process_csv_folder, read_csv_file, reshape_csv_file
 from Translation.PredictiveTracker import Predictive_tracker
 
 def main():
@@ -31,6 +32,12 @@ def main():
                 unsafe_allow_html=True
     )
     build_footer()
+
+    if 'button' not in st.session_state:
+        st.session_state.button = False
+
+    def click_button():
+        st.session_state.button = not st.session_state.button
 
     # Define sidebar data input
     data_path = st.sidebar.text_input("Data Path:", None)
@@ -110,10 +117,10 @@ def main():
                 index=radio_index
             )
             if analysis_type == "Particle Tracking":
-                threshold = st.sidebar.number_input("Brightness Threshold")
-                max_disp = st.sidebar.number_input("Maximum Displacement")
-                min_area = st.sidebar.number_input("Minimum Displacement")
-                startframe = st.sidebar.number_input("Start Frame", step=1)
+                threshold = st.sidebar.number_input("Brightness Threshold", min_value=0)
+                max_disp = st.sidebar.number_input("Maximum Displacement", min_value=0)
+                min_area = st.sidebar.number_input("Minimum Displacement", min_value=0)
+                startframe = st.sidebar.number_input("Start Frame", step=1, min_value=0)
                 endframe = st.sidebar.number_input("End Frame", step=1, min_value=startframe+1)
                 # framerange = st.sidebar.slider("Framerange")
                 invert = st.sidebar.radio("Invert", ("Bright", "Dark"))
@@ -126,9 +133,9 @@ def main():
                     case "Dark":
                         invert = 1
 
-                submit = st.sidebar.button("Compute")
+                submit = st.sidebar.button("Compute", on_click=click_button)
 
-                if submit:
+                if st.session_state.button:
                     try:
                         Predictive_tracker(
                             inputnames=data_file,
@@ -151,6 +158,21 @@ def main():
             else:
                 # for vector analysis, computation params are gathered from csv files in directory
                 # csv files should follow naming convention, but don't need to check for that here
+                i = 0
+                data_file = f'frame_{i}.csv'
+                data_path = get_dir_path(data_path + data_file, 'frame_0.csv')
+
+                # update graphic
+                x_positions, y_positions, u_velocities, v_velocities = read_csv_file(os.path.join(data_path, data_file))
+                x_grid, y_grid, u_grid, v_grid = reshape_csv_file(x_positions, y_positions, u_velocities, v_velocities)
+                
+                fig = plt.figure(figsize=(4,4))
+                plt.quiver(x_grid, y_grid, u_grid, v_grid, scale=15, scale_units='xy', angles='xy', cmap='viridis')
+                plt.title(f'Turbulent Velocity Field')
+                plt.xlabel('X')
+                plt.ylabel('Y')
+                graphic.pyplot(fig,use_container_width=False)
+
                 operation = st.sidebar.radio("Operation",
                                             (
                                                 'add',
@@ -162,17 +184,49 @@ def main():
                                             )
                 )
 
+                vector_x = st.sidebar.number_input("Vector X")
+                vector_y = st.sidebar.number_input("Vector Y")
+                vector = (vector_x, vector_y)
+
                 # run other functions from particlepals package here,
                 # update inputs as required, and handle output
-                submit = st.sidebar.button("Compute")
+                submit = st.sidebar.button("Compute", on_click=click_button)
 
-                if submit:
+                if st.session_state.button:
+                    data_path_err.text(data_path)
                     try:
-                        process_csv_folder(data_path, operation)
+                        u_grid, v_grid, numbers = process_csv_folder(data_path, operation, vector)
+                        frame_num = st.slider('Frame', min_value=min(numbers), max_value=max(numbers))
+                        fig = plt.figure(figsize=(4,4))
+                        plt.quiver(x_grid, y_grid, u_grid, v_grid, scale=15, scale_units='xy', angles='xy', cmap='viridis')
+                        plt.title(f'Turbulent Velocity Field, Frame {frame_num}')
+                        plt.xlabel('X')
+                        plt.ylabel('Y')
+                        graphic.pyplot(fig,use_container_width=False)
                     except FileNotFoundError as e:
                         st.sidebar.text(f"Computation raised error: \n{e}" +
                                         "\nCheck inputs."
                                         )
+
+                # # run other functions from particlepals package here,
+                # # update inputs as required, and handle output
+                # submit = st.sidebar.button("Compute")
+
+                # if submit:
+                #     data_path_err.text(data_path)
+                #     try:
+                #         u_grid, v_grid, numbers = process_csv_folder(data_path, operation, vector)
+                #         frame_num = st.slider('Frame', min_value=min(numbers), max_value=max(numbers))
+                #         fig = plt.figure(figsize=(4,4))
+                #         plt.quiver(x_grid, y_grid, u_grid, v_grid, scale=15, scale_units='xy', angles='xy', cmap='viridis')
+                #         plt.title(f'Turbulent Velocity Field, Frame {frame_num}')
+                #         plt.xlabel('X')
+                #         plt.ylabel('Y')
+                #         graphic.pyplot(fig,use_container_width=False)
+                #     except FileNotFoundError as e:
+                #         st.sidebar.text(f"Computation raised error: \n{e}" +
+                #                         "\nCheck inputs."
+                #                         )
     else:
         pass
 

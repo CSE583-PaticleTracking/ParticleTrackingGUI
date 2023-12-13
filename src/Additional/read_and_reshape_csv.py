@@ -309,9 +309,9 @@ def convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path):
     >>> convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path)
     """
     
-    # Check if the folder exists
-    if not os.path.exists(file_path):
-        raise FileNotFoundError('The CSV file does not exist.')
+    # # Check if the folder exists
+    # if not os.path.exists(file_path):
+    #     raise FileNotFoundError('The specified directory does not exist.')
 
     # Check if the grid shapes are compatible
     if x_grid.shape != y_grid.shape or x_grid.shape != u_grid.shape or x_grid.shape != v_grid.shape:
@@ -345,7 +345,7 @@ def convert_grid_to_csv(x_grid, y_grid, u_grid, v_grid, file_path):
 
     # print(f"Grid data saved to '{file_path}'.")
 
-def process_csv_folder(folder_path, operation=None):
+def process_csv_folder(folder_path, operation=None, vector=None):
     """
     The function processes all CSV files in a folder located in the original folder.
     It loads all the CSV files in the folder using the functions in 
@@ -393,23 +393,18 @@ def process_csv_folder(folder_path, operation=None):
 
         # Perform the specified vector operation
         if operation in {'add', 'subtract', 'multiply', 'divide'}:
-            u_processed_data = vo.operate_on_grid(u_grid, vector=2, operation=operation)
-            v_processed_data = vo.operate_on_grid(v_grid, vector=2, operation=operation)
+            u_processed_data = vo.operate_on_grid(u_grid, vector=vector[0], operation=operation)
+            v_processed_data = vo.operate_on_grid(v_grid, vector=vector[1], operation=operation)
         elif operation in {'mean', 'median'}:
             u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
-            u_processed_data = vo.fill_in_nan_values_using_filter(u_grid, method=operation)
+            v_processed_data = vo.fill_in_nan_values_using_filter(v_grid, method=operation)
         elif operation is None:
             # If operation is empty, don't process data
             pass
             # processed_data = original_data
         else:
             raise ValueError(f"Invalid operation '{operation}'. Valid operations are 'add', 'subtract', 'multiply', 'divide', 'mean', and 'median'.")
-
-        if operation is not None:
-            # Save the processed data
-            processed_file_path = os.path.join(processed_folder_path, csv_file)
-            # processed_data.to_csv(processed_file_path, index=False)
-            convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
+            
 
     if operation is not None:
         # Save metadata CSV file
@@ -424,4 +419,11 @@ def process_csv_folder(folder_path, operation=None):
                                         'Operation': [operation]})
         operations_df.to_csv(operations_file_path, index=False)
 
+        # Save the processed data
+        processed_file_path = os.path.join(processed_folder_path, csv_file)
+        # processed_data.to_csv(processed_file_path, index=False)
+        convert_grid_to_csv(x_grid, y_grid, u_processed_data, v_processed_data, processed_file_path)
+
         print(f"Processing complete. Processed data saved in '{processed_folder_path}'.")
+
+    return u_processed_data, v_processed_data, numbers
