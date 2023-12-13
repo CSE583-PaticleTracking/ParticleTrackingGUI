@@ -192,7 +192,7 @@ Calculate the vorticity of a 2D vector field. The vorticity is calculated as the
 - spatial and velocity grid.
 
 ### Outputs
-        numpy.ndarray: 2D numpy array containing the vorticity of the vector field.
+- Array containing the vorticity of the vector field.
 
         
 
