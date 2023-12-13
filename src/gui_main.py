@@ -9,11 +9,6 @@ import streamlit as st
 
 from Additional.read_and_reshape_csv import process_csv_folder
 
-## TODO: add particlepals imports
-# import our package/functions
-
-## TODO: check style and run tests
-
 def main():
     """
     Main function.
@@ -76,18 +71,24 @@ def main():
         else:
             try:
                 data_file = get_file_name(data_path, data_extension)
-                dir_path = get_dir_path(data_path, data_file)
+                data_path_err.text(data_file)
+                ## implement this feature later...
+                # decided that for now we are going to assume .tif and .avi are in working dir.
+                # dir_path = get_dir_path(data_path, data_file)
             except (IndexError, ValueError, FileNotFoundError) as e:
                 data_path_err.text("Invalid input." +
                                    f"\nEncountered error: {e}." +
                                    "\nCheck path.")
 
-            dir_fd = os.open(dir_path, os.O_RDONLY)
-            def opener(path, flags):
-                return os.open(path, flags, dir_fd=dir_fd)
+            ## implement this feature later...
+            # decided that for now we are going to assume .tif and .avi are in working dir.
+            # dir_fd = os.open(dir_path, os.O_RDONLY)
+            # def opener(path, flags):
+            #     return os.open(path, flags, dir_fd=dir_fd)
             
             if data_extension == '.tif':
-                with open(data_file, 'rb', opener=opener) as f:
+                # with open(data_file, 'rb', opener=opener) as f:
+                with open(data_file, 'rb') as f:
                     graphic_data = f.read()
                     graphic.image(graphic_data)
 
@@ -228,10 +229,13 @@ def get_file_name(path, extension):
     elif '\\' in path:
         slash_idx = path.rfind('\\')
         file_name = path[slash_idx+1:]
-
+    else:
+        # if path is just a file name, return it
+        file_name = path
     # if file name hasn't changed, let somebody know
     if file_name == '':
         raise ValueError("Could not get file name from path.")
+    
     return file_name
 
 
@@ -239,8 +243,8 @@ def get_dir_path(full_path, file):
     """
     Gets absolute path (excluding file name and extension) from full path.
     Inputs:
-        path: string containing path to file.
-            Can be absolute or relative.
+        path: string containing path to file plus file name and extension.
+            Path can be absolute or relative.
         file: file name and extension.
     Returns:
         dir_path: string absolute path to file's parent directory
@@ -249,20 +253,48 @@ def get_dir_path(full_path, file):
     dir_path = full_path[0:file_idx]
     is_relative_path = '.' in dir_path
     if not is_relative_path:
-        return full_path
-    
-    # replace relative references with absolute
-    cwd = os.getcwd()
-    while is_relative_path:
-        dot_idx = full_path.find('.')
+        return dir_path
+    else:
+        # replace relative references with absolute
+        cwd = os.getcwd()
+        dot_idx = dir_path.find('.')
 
-        # check if referencing current directory or parents
-        if full_path[dot_idx+1] == '.':
-            # if referencing parent directory, remove everything
-            # after second-to-last slash in absolute path
-            dir_path = dir
+        # first dot should always be at index zero...
+        if dot_idx != 0:
+            raise ValueError("Invalid path. Path should start with relative refs.")
 
- 
+        # check if referencing current directory ('.') or parent's ('..')
+        if '..' in dir_path:
+            # if path starts with '.':
+            if dir_path[dot_idx+1] != '.':
+                # since '.' is followed by '..', can simply remove it here...
+                # and we know that this is at index 0, followed by a single slash
+                dir_path = dir_path[2:]
+            # else:
+            #    pass
+
+            # now there is NO single dot but there is/are double(s)
+            # if referencing parent directory, count occurences
+            # then remove from abs path accordingly...
+            double_dot_count = dir_path.count('..')
+            for _ in range(double_dot_count):
+                remove_from_idx = cwd.rfind('\\')
+                cwd = cwd[:remove_from_idx]
+                remove_to_idx = dir_path.find('..')
+                dir_path = dir_path[remove_to_idx+2:]
+
+            # now construct new path by removing all dots and replacing with cwd
+            remove_to_idx = dir_path.rfind('..')
+            dir_path = cwd + dir_path[remove_to_idx:]
+
+        # if no parent references, simply replace single dot with cwd
+        else:
+            dir_path = dir_path.replace('.', cwd)
+
+        if '/' in dir_path:
+            dir_path = dir_path.replace('/','\\')
+
+        return dir_path
 
 
 def build_footer():
