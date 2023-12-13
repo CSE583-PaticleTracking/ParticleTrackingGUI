@@ -77,15 +77,15 @@ def main():
             try:
                 data_file = get_file_name(data_path, data_extension)
                 dir_path = data_path[0:data_path.rfind(data_file)]
-                dir_fd = os.open(dir_path, os.O_RDONLY)
             except (IndexError, ValueError, FileNotFoundError) as e:
                 data_path_err.text("Invalid input." +
                                    f"\nEncountered error: {e}." +
                                    "\nCheck path.")
 
+            dir_fd = os.open(dir_path, os.O_RDONLY)
             def opener(path, flags):
                 return os.open(path, flags, dir_fd=dir_fd)
-
+            
             if data_extension == '.tif':
                 with open(data_file, 'rb', opener=opener) as f:
                     graphic_data = f.read()
