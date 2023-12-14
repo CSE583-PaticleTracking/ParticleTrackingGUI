@@ -25,7 +25,7 @@ def main():
     """
     # set page config
     st.set_page_config(layout="wide")
-    # MediaFileStorageError = st.runtime.media_file_storage.MediaFileStorageError
+    MediaFileStorageError = st.runtime.media_file_storage.MediaFileStorageError
     st.markdown('<p class="big-font">Particle Pals</p>', unsafe_allow_html=True)
     st.markdown(
                 '<p class="small-font">Particle Tracking and Vector Analysis Application</p>',
@@ -52,7 +52,11 @@ def main():
     with col1:
         instructions = st.text("Upload data to get started.")
     with col2:
-        graphic = st.image('src/GUI/default_graphic.jpg')
+        default_graphic_path = 'particlepals/resources/default_graphic.jpg'
+        try:
+            graphic = st.image(default_graphic_path)
+        except MediaFileStorageError as e:
+            st.text(f"check default graphic path: {default_graphic_path}")
 
     # update content based on inputs
     if data_path is not None:
