@@ -36,7 +36,10 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-import vector_analysis.vector_operations as vo
+try:
+    import vector_analysis.vector_operations as vo
+except ModuleNotFoundError:
+    import vector_operations as vo
 
 def extract_metadata_from_csv(file_path):
     """
