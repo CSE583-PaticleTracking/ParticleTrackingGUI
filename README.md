@@ -10,7 +10,7 @@ Create a Python GUI for tracking particle trajectories from images. After tracki
 export desired data and statistics. This GUI can be used for both personal/research purposes.
 
 ### File structure
-$ tree
+```
 .
 ├── README.md
 ├── LICENSE
@@ -58,6 +58,7 @@ $ tree
         ├── test_vector_operations.py
         ├── extra.txt
         └── README.md
+```
 
 ### Docs
 This folder contains example use cases, components, and a diagram to explain the GUI's operation.
