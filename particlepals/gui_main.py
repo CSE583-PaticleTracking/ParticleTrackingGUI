@@ -9,8 +9,8 @@ import streamlit as st
 
 # add package parent directory to sys path
 
-from Additional.read_and_reshape_csv import process_csv_folder, read_csv_file, reshape_csv_file
-from Translation.PredictiveTracker import Predictive_tracker
+from vector_analysis.read_and_reshape_csv import process_csv_folder, read_csv_file, reshape_csv_file
+from particle_tracking.PredictiveTracker import Predictive_tracker
 
 def main():
     """
